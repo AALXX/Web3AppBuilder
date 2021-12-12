@@ -1,0 +1,31 @@
+{
+  "name": "back-end",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "server": "nodemon --exec ts-node src/W3AB-Api-Layer/api/W3AB_Api.ts",
+    "build:BackEnd": "rm -rf backend-build/ && tsc "
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.11",
+    "@types/express-validator": "^3.0.0",
+    "@types/mysql": "^2.15.18",
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.4.0",
+    "ts-node-dev": "^1.1.6",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "express": "^4.17.1",
+    "express-validator": "^6.13.0",
+    "http": "*",
+    "mysql": "^2.18.1",
+    "path": "^0.12.7"
+  }
+}
