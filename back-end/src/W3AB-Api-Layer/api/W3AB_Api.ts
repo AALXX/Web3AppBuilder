@@ -30,7 +30,7 @@ router.use("/api/design-tool-manager/", DesignToolController);
 
 
 //* Error Handleling
-router.use((req:any, res:any, next:NextFunction) => {
+router.use((req: any, res: any, next: NextFunction) => {
 
   const error = new Error('not found');
 
