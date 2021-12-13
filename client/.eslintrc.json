@@ -19,7 +19,10 @@
         // Indent JSX with 4 spaces
         "react/jsx-indent": ["error", 4],
         // Indent props with 4 spaces
-        "react/jsx-indent-props": ["error", 4]
+        "react/jsx-indent-props": ["error", 4],
+        // max line lenght
+        "max-len": ["error", {"code": 120}],
+        "object-curly-spacing": ["error", "always"]
     },
 
     "settings": {

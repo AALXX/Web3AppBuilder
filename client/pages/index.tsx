@@ -1,7 +1,7 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const LazyComponent = dynamic(
+const EditWebsiteUi = dynamic(
     () => import('../Components/EditingUi/EditWebsiteUi'),
     {
         loading: () => <p>Loading...</p>,
@@ -15,7 +15,7 @@ const LazyComponent = dynamic(
 export default function Home() {
     return (
         <div>
-            <LazyComponent />
+            <EditWebsiteUi />
         </div>
     );
 }

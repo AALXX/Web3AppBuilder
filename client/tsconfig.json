@@ -61,7 +61,8 @@
         "incremental": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "jsx": "preserve"
+        "jsx": "preserve",
+        "strictNullChecks": false //* THIS IS NOT ASOLUTION
     },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
     "exclude": ["node_modules"]
