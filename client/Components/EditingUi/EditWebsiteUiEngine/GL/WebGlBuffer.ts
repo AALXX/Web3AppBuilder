@@ -71,7 +71,7 @@ export class WebGlBuffer {
     }
 
     //* Destroys the buffer
-    public Destroy = (): void => {
+    public destroy = (): void => {
         gl.deleteBuffer(this._buffer);
     };
 

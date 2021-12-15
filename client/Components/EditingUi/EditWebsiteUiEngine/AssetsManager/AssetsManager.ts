@@ -2,6 +2,7 @@ import { IAssetLoader } from './IAssetloader';
 import { IAsset } from './IAsset';
 import { Message } from '../MessageManager/Message';
 import { ImageAssetLoader } from './ImageAssetLoader';
+
 export const MESSAGE_ASSET_LOADER_ASSET_LOADED = 'MESSAGE_ASSET_LOADER_ASSET_LOADED::';
 
 /**
@@ -41,15 +42,16 @@ export class AssetsManager {
      */
     public static loadAsset(assetName: string): void {
         const extension = assetName.split('.').pop().toLowerCase();
+
         for (const l of AssetsManager._loaders) {
             if (l.supportedExtensions.indexOf(extension) !== -1) {
                 l.loadAsset(assetName);
                 return;
             }
         }
-
         console.warn('Unable to load asset with extension ' + extension + ' because there is no loader associated with it.');
     }
+
     /**
      * Is Sset Loaded check
      * @param {string} assetName

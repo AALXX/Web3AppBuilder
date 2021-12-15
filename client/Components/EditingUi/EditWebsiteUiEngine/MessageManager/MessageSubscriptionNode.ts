@@ -6,6 +6,7 @@ import { Message } from './Message.js';
  */
 export class MessageSubscriptionNode {
     public message: Message;
+
     public handler: IMessageHandler;
 
     /**
@@ -13,7 +14,7 @@ export class MessageSubscriptionNode {
      * @param {Message} message
      * @param {IMessageHandler} handler
      */
-    constructor(message: Message, handler: IMessageHandler) {
+    public constructor(message: Message, handler: IMessageHandler) {
         this.message = message;
         this.handler = handler;
     }

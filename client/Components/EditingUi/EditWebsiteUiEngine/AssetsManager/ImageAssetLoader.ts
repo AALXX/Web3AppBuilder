@@ -42,7 +42,7 @@ export class ImageAssetLoader implements IAssetLoader {
      * Suported image xrensions
      */
     public get supportedExtensions(): string[] {
-        return ['png', 'gif', 'jgp'];
+        return ['png', 'gif', 'jpg'];
     }
 
     /**
