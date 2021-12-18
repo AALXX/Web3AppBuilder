@@ -1,8 +1,8 @@
-import { AssetsManager, MESSAGE_ASSET_LOADER_ASSET_LOADED } from '../AssetsManager/AssetsManager';
-import { ImageAsset } from '../AssetsManager/ImageAssetLoader';
-import { gl } from '../GL/GLUtilities';
-import { IMessageHandler } from '../MessageManager/IMessageHandler';
-import { Message } from '../MessageManager/Message';
+import { AssetsManager, MESSAGE_ASSET_LOADER_ASSET_LOADED } from '../../AssetsManager/AssetsManager';
+import { ImageAsset } from '../../AssetsManager/ImageAssetLoader';
+import { gl } from '../../GL/GLUtilities';
+import { IMessageHandler } from '../../MessageManager/IMessageHandler';
+import { Message } from '../../MessageManager/Message';
 
 const LEVEL: number = 0;
 const BORDER: number = 0;

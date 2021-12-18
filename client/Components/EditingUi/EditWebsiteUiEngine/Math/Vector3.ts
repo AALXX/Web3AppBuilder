@@ -64,6 +64,30 @@ export class Vector3 {
     }
 
     /**
+     * new vector 3 with zeros
+     */
+    public static get zero(): Vector3 {
+        return new Vector3();
+    }
+
+    /**
+    * new vector 3 with ones
+    */
+    public static get one(): Vector3 {
+        return new Vector3(1, 1, 1);
+    }
+
+    /**
+    * Creates a copy of matrix m.
+    * @param {Vector3} vector The matrix to copy.
+    */
+    public copyFrom(vector: Vector3): void {
+        this._x = vector._x;
+        this._y = vector._y;
+        this._z = vector._z;
+    }
+
+    /**
      * transforms x, y, z to toArray
      * @return {number}
      */

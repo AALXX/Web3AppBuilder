@@ -2,7 +2,7 @@ import { gl } from './GLUtilities';
 /**
  * Repersents a wegGl shader
  */
-export class Shaders {
+export abstract class Shaders {
     private _name: string;
     private _program: WebGLProgram;
     private _attributes: { [name: string]: number } = {};
@@ -12,17 +12,9 @@ export class Shaders {
     /**
      * Class Constructor
      * @param {string} name
-     * @param {string} vertexSource
-     * @param {string} fragmentSource
      */
-    public constructor(name: string, vertexSource: string, fragmentSource: string) {
+    public constructor(name: string) {
         this._name = name;
-        const VertexShader = this.loadShader(vertexSource, gl.VERTEX_SHADER);
-        const FragmentShader = this.loadShader(fragmentSource, gl.FRAGMENT_SHADER);
-
-        this.createProgram(VertexShader, FragmentShader);
-        this.detectAttributes();
-        this.detectUniforms();
     }
 
     /**
@@ -61,7 +53,21 @@ export class Shaders {
     };
 
     /**
-     * It Loads The Shader
+    * Load shader method
+    * @param {string} vertexSource
+    * @param {string} fragmentSource
+    */
+    protected load(vertexSource: string, fragmentSource: string): void {
+        const VertexShader = this.loadShader(vertexSource, gl.VERTEX_SHADER);
+        const FragmentShader = this.loadShader(fragmentSource, gl.FRAGMENT_SHADER);
+
+        this.createProgram(VertexShader, FragmentShader);
+        this.detectAttributes();
+        this.detectUniforms();
+    }
+
+    /**
+     * It Loads and compile The Shader
      * @param {string} source
      * @param {number} shaderType
      * @return {glShader}
