@@ -6,8 +6,8 @@ body {
         Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
     display: flex;
     flex-direction: column;
-    background-color: #414141;
-    overflow: hidden;
+    background-color: #6b6b6b;
+    overflow-y: hidden;
 
 }
 

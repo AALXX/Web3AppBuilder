@@ -1,0 +1,40 @@
+.PageContainer {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+
+}
+
+/** Pages tab */
+
+.PagesTab {
+    display: flex;
+    width: 20rem;
+    background-color: #505050;
+}
+
+/** Page Editor */
+
+.PageEditorContainer {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.WebistePage {
+    display: flex;
+    background-color: white;
+    width: 60rem;
+    height: 35rem;
+}
+
+
+/**Components Propriety Tab */
+
+.ComponentsProprietyTab {
+    display: flex;
+    width: 20rem;
+    background-color: #505050;
+    margin-left: auto;
+}
