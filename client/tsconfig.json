@@ -56,7 +56,7 @@
         "skipLibCheck": true /* Skip type checking of declaration files. */,
         "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
         "lib": ["dom", "dom.iterable", "esnext"],
-        "allowJs": false,
+        "allowJs": true,
         "noEmit": true,
         "incremental": true,
         "resolveJsonModule": true,
@@ -64,6 +64,6 @@
         "jsx": "preserve",
         "strictNullChecks": false //* THIS IS NOT ASOLUTION
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/project/edit.tsx"],
     "exclude": ["node_modules"]
 }

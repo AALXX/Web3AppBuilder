@@ -1,15 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { FC } from 'react';
 import styles from '../../styles/EditWebsite.module.css';
+import EditWebsiteUi from '../../Components/EditWebsiteUi/EditWebsiteUi';
+
+interface EditProjectProps{
+
+}
 
 /**
  * This Is Editing Website Ui Space
  * @return {JSX.Element}
 */
-export default function EditProject() {
-    useEffect(() => {
-
-    }, []);
-
+const EditProject:FC<EditProjectProps> = () => {
     return (
         <div className={styles.PageContainer}>
             <div className={styles.PagesTab}>
@@ -18,15 +19,16 @@ export default function EditProject() {
 
             <div className={styles.PageEditorContainer}>
 
-                <div className={styles.WebistePage}>
-
-                </div>
+                <EditWebsiteUi />
 
             </div>
+
 
             <div className={styles.ComponentsProprietyTab}>
 
             </div>
         </div>
     );
-}
+};
+
+export default EditProject;

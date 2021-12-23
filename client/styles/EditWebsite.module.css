@@ -22,11 +22,12 @@
     align-items: center;
 }
 
-.WebistePage {
+.WebsiteCanvas {
     display: flex;
     background-color: white;
     width: 60rem;
     height: 35rem;
+    overflow: hidden;
 }
 
 
