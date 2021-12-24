@@ -1,0 +1,27 @@
+{
+    "name": "TestProject",
+    "id": 0,
+    "objects": [
+        {
+            "name": "parentObject",
+            "transform": {
+                "position": {
+                    "x": 300,
+                    "y": 300
+                }
+            },
+            "children": [
+                {
+                    "name": "testObject",
+                    "transform": {
+                        "position": {
+                            "x": 150,
+                            "y": 150
+                        }
+                    }
+
+                }
+            ]
+        }
+    ]
+}
