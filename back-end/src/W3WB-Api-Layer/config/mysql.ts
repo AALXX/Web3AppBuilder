@@ -9,7 +9,7 @@ const params = {
     database: config.mysql.database,
 };
 
-const Connect = async () =>
+const connect = async () =>
     new Promise<mysql.Connection>((resolve, reject) => {
         const connection = mysql.createConnection(params);
         connection.connect((error) => {
@@ -21,7 +21,7 @@ const Connect = async () =>
         });
     });
 
-const Query = async (connection: mysql.Connection, query: string) =>
+const query = async (connection: mysql.Connection, query: string) =>
     new Promise((resolve, reject) => {
         connection.query(query, connection, (err, result) => {
             if (err) {
@@ -31,4 +31,4 @@ const Query = async (connection: mysql.Connection, query: string) =>
         });
     });
 
-export {Connect, Query};
+export { connect, query };
