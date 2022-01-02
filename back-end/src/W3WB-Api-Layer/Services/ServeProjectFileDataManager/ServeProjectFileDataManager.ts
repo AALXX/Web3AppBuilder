@@ -46,19 +46,14 @@ const AddProject = (req: Request, res: Response) => {
                             });
                         }
 
-                        fs.writeFile(
-                            `../Projects/${ProjectToken}/${req.body.ProjectName}.json`,
-                            `{ "name": "${req.body.ProjectName}", "id": 0, "objects": [] }`,
-                            'utf-8',
-                            (err) => {
-                                if (err) {
-                                    return res.status(200).json({
-                                        error: true,
-                                        message: err.message,
-                                    });
-                                }
-                            },
-                        );
+                        fs.writeFile(`../Projects/${ProjectToken}/${req.body.ProjectName}.json`, `{ "name": "${req.body.ProjectName}", "id": 0, "objects": [] }`, 'utf-8', (err) => {
+                            if (err) {
+                                return res.status(200).json({
+                                    error: true,
+                                    message: err.message,
+                                });
+                            }
+                        });
                     });
 
                     return res.status(200).json({
@@ -106,36 +101,27 @@ const ServeJsonProject = (req: Request, res: Response) => {
                             message: 'project not found',
                         });
                     }
-                    fs.stat(
-                        `../Projects/${req.params.projectToken}/${data[0].ProjectName}.json`,
-                        (err) => {
-                            if (err === null) {
-                                //* file exits
-                                //* deepcode ignore PT: <input sanitized in routes file>
-                                fs.readFile(
-                                    `../Projects/${req.params.projectToken}/${data[0].ProjectName}.json`,
-                                    'utf8',
-                                    (err, data) => {
-                                        if (err) {
-                                            return res.status(200).json({
-                                                error: true,
-                                                message: err,
-                                            });
-                                        }
-                                        return res
-                                            .status(200)
-                                            .json(JSON.parse(data));
-                                    },
-                                );
-                            } else if (err.code === 'ENOENT') {
-                                //* file does not exits
-                                return res.status(200).json({
-                                    error: true,
-                                    message: 'file does not exist',
-                                });
-                            }
-                        },
-                    );
+                    fs.stat(`Projects/${req.params.projectToken}/${data[0].ProjectName}.json`, (err) => {
+                        if (err === null) {
+                            //* file exits
+                            //* deepcode ignore PT: <input sanitized in routes file>
+                            fs.readFile(`Projects/${req.params.projectToken}/${data[0].ProjectName}.json`, 'utf8', (err, Filedata) => {
+                                if (err) {
+                                    return res.status(200).json({
+                                        error: true,
+                                        message: err,
+                                    });
+                                }
+                                return res.json(Filedata);
+                            });
+                        } else if (err.code === 'ENOENT') {
+                            //* file does not exits
+                            return res.status(200).json({
+                                error: true,
+                                message: 'file does not exist',
+                            });
+                        }
+                    });
                 })
                 .catch((error) => {
                     logging.error(NAMESPACE, error.message, error);

@@ -46,6 +46,20 @@ export class Vector2 {
     }
 
     /**
+     * takes data from josn
+     * @param {any} json
+     */
+    public setFromJson(json: any): void {
+        if (json.x !== undefined) {
+            this._x = Number(json.x);
+        }
+
+        if (json.y !== undefined) {
+            this._y = Number(json.y);
+        }
+    }
+
+    /**
      * transforms x, y, z to toArray
      * @return {number}
      */
@@ -54,9 +68,9 @@ export class Vector2 {
     }
 
     /**
-    * transforms x, y, z to toFloat32Array
-    * @return {number}
-    */
+     * transforms x, y, z to toFloat32Array
+     * @return {number}
+     */
     public toFloat32Array(): Float32Array {
         return new Float32Array(this.toArray());
     }

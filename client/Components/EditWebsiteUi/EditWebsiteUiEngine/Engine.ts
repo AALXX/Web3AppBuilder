@@ -21,9 +21,7 @@ export namespace UiDesignEngine {
         /**
          ** Class Constructor
          */
-        public constructor() {
-
-        }
+        public constructor() {}
 
         /**
          * Start Method
@@ -33,6 +31,7 @@ export namespace UiDesignEngine {
             this._canvas = canvasRef;
             GlUtilities.initialize(this._canvas);
             AssetsManager.initialize();
+            LevelManager.initialize();
 
             gl.clearColor(0, 0, 0, 1);
 
@@ -42,13 +41,11 @@ export namespace UiDesignEngine {
             //* Load Mterials
             MaterialManager.registerMaterial(new Material('wood', '../assets/texure.jpg', new Color(255, 255, 255, 255)));
 
-            const levelID = LevelManager.createTestLevel();
-
             //* Load
             this._projection = Matrix4x4.orthographic(0, this._canvas.current.width, this._canvas.current.height, 0, -100.0, 100.0);
 
-            LevelManager.changeLevel(levelID);
-
+            // TODO: change to be read from a game config file later
+            LevelManager.changeLevel(0);
 
             this.resize();
             this.update();

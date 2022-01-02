@@ -11,7 +11,6 @@ export class Transform {
 
     public scale: Vector3 = Vector3.one;
 
-
     /**
      * Copy Position
      * @param {Transform }transform
@@ -32,15 +31,30 @@ export class Transform {
         const rotation = Matrix4x4.rotationXYZ(this.rotation.x, this.rotation.y, this.rotation.z);
         const scale = Matrix4x4.scale(this.scale);
 
-
         // Trans * Rot * scale
         return Matrix4x4.multiply(Matrix4x4.multiply(translation, rotation), scale);
     }
 
     /**
+     * takes data from josn
+     * @param {any} json
+     */
+    public setFromJson(json: any): void {
+        if (json.position !== undefined) {
+            this.position.setFromJson(json.position);
+        }
+
+        if (json.rotation !== undefined) {
+            this.rotation.setFromJson(json.rotation);
+        }
+
+        if (json.scale !== undefined) {
+            this.scale.setFromJson(json.scale);
+        }
+    }
+
+    /**
      * Class constructor
      */
-    public constructor() {
-
-    }
+    public constructor() {}
 }

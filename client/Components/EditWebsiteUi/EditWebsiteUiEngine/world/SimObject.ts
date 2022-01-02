@@ -73,9 +73,9 @@ export class SimObject {
     }
 
     /**
-    * remouveSimObject child
-    * @param {SimObject} child
-    */
+     * remouveSimObject child
+     * @param {SimObject} child
+     */
     public removeChild(child: SimObject): void {
         const index = this._children.indexOf(child);
         if (index !== -1) {
@@ -133,7 +133,7 @@ export class SimObject {
      */
     public update(time: number): void {
         this._localMatrix = this.transform.getTransformationMatrix();
-        this.updateWorldMatrix((this._parent !== undefined) ? this._parent.worldMatrix : undefined);
+        this.updateWorldMatrix(this._parent !== undefined ? this._parent.worldMatrix : undefined);
 
         for (const c of this._components) {
             c.update(time);

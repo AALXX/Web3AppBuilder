@@ -1,43 +1,31 @@
+import { AssetsManager, MESSAGE_ASSET_LOADER_ASSET_LOADED } from '../AssetsManager/AssetsManager';
+import { JsonAsset } from '../AssetsManager/JsonAssetLoader';
 import { Shaders } from '../GL/Shaders';
+import { IMessageHandler } from '../MessageManager/IMessageHandler';
+import { Message } from '../MessageManager/Message';
 import { Level } from './Level';
-import { TestLevel } from './TestLevel';
 
 /**
  * Level Manager
  */
-export class LevelManager {
+export class LevelManager implements IMessageHandler {
     private static _globalZoneID: number = -1;
-    private static _levels: { [id: number]: Level } = {};
+    // private static _levels: { [id: number]: Level } = {};
+    private static _registeredLevels: { [id: number]: string } = {};
     private static _activeZone: Level;
-
+    private static _instance: LevelManager;
 
     /** Class constructor */
-    private constructor() {
-    }
+    private constructor() {}
 
     /**
-     * Create level
-     * @param {string} name
-     * @param {string} description
-     * @return {number}
+     * registrered zones initializator
      */
-    public static createLevel(name: string, description: string): number {
-        LevelManager._globalZoneID++;
-        const level = new Level(LevelManager._globalZoneID, name, description);
-        LevelManager._levels[LevelManager._globalZoneID] = level;
-        return LevelManager._globalZoneID;
-    }
+    public static initialize(): void {
+        LevelManager._instance = new LevelManager();
 
-    // TODO: This is temporary code until file loading is supported.
-    /**
-     * Creaet test zone
-     * @return {number}
-     */
-    public static createTestLevel(): number {
-        LevelManager._globalZoneID++;
-        const level = new TestLevel(LevelManager._globalZoneID, 'test', 'A simple test zone');
-        LevelManager._levels[LevelManager._globalZoneID] = level;
-        return LevelManager._globalZoneID;
+        // ! Temporary
+        LevelManager._registeredLevels[0] = 'http://localhost:9000/kw8rybzkj4ova9uyj1/TestProject.json';
     }
 
     /**
@@ -48,12 +36,19 @@ export class LevelManager {
         if (LevelManager._activeZone !== undefined) {
             LevelManager._activeZone.onDeactivated();
             LevelManager._activeZone.unload();
+            LevelManager._activeZone = undefined;
         }
 
-        if (LevelManager._levels[id] !== undefined) {
-            LevelManager._activeZone = LevelManager._levels[id];
-            LevelManager._activeZone.onActivated();
-            LevelManager._activeZone.load();
+        if (LevelManager._registeredLevels[id] !== undefined) {
+            if (AssetsManager.isAssetLoaded(LevelManager._registeredLevels[id])) {
+                const asset = AssetsManager.getAsset(LevelManager._registeredLevels[id]);
+                LevelManager.loadLevel(asset);
+            } else {
+                Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + LevelManager._registeredLevels[id], LevelManager._instance);
+                AssetsManager.loadAsset(LevelManager._registeredLevels[id]);
+            }
+        } else {
+            throw new Error(`level id: ${id} does not exist `);
         }
     }
 
@@ -75,5 +70,47 @@ export class LevelManager {
         if (LevelManager._activeZone !== undefined) {
             LevelManager._activeZone.render(shader);
         }
+    }
+
+    /**
+     *  OnMessage method
+     * @param {Message} message
+     */
+    onMessage(message: Message): void {
+        if (message.code.indexOf(MESSAGE_ASSET_LOADER_ASSET_LOADED)) {
+            const asset = message.context as JsonAsset;
+            LevelManager.loadLevel(asset);
+        }
+    }
+
+    /**
+     * it handles loading of the level/project
+     * @param {JsonAsset} asset
+     */
+    private static loadLevel(asset: JsonAsset): void {
+        const levelData = asset.data;
+        let levelID: number;
+        if (levelData.id === undefined) {
+            throw new Error(`Project File exception: project id not found`);
+        } else {
+            levelID = Number(levelData.id);
+        }
+
+        let levelName: string;
+        if (levelData.name === undefined) {
+            throw new Error(`Project File exception: project name not found`);
+        } else {
+            levelName = String(levelData.name);
+        }
+
+        let levelDescription: string;
+        if (levelData.name !== undefined) {
+            levelDescription = String(levelData.description);
+        }
+
+        LevelManager._activeZone = new Level(levelID, levelName, levelDescription);
+        LevelManager._activeZone.initialize(levelData);
+        LevelManager._activeZone.onActivated();
+        LevelManager._activeZone.load();
     }
 }

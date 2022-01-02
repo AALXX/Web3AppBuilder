@@ -71,20 +71,38 @@ export class Vector3 {
     }
 
     /**
-    * new vector 3 with ones
-    */
+     * new vector 3 with ones
+     */
     public static get one(): Vector3 {
         return new Vector3(1, 1, 1);
     }
 
     /**
-    * Creates a copy of matrix m.
-    * @param {Vector3} vector The matrix to copy.
-    */
+     * Creates a copy of matrix m.
+     * @param {Vector3} vector The matrix to copy.
+     */
     public copyFrom(vector: Vector3): void {
         this._x = vector._x;
         this._y = vector._y;
         this._z = vector._z;
+    }
+
+    /**
+     * takes data from josn
+     * @param {any} json
+     */
+    public setFromJson(json: any): void {
+        if (json.x !== undefined) {
+            this._x = Number(json.x);
+        }
+
+        if (json.y !== undefined) {
+            this._y = Number(json.y);
+        }
+
+        if (json.z !== undefined) {
+            this._z = Number(json.z);
+        }
     }
 
     /**
@@ -96,9 +114,9 @@ export class Vector3 {
     }
 
     /**
-    * transforms x, y, z to toFloat32Array
-    * @return {number}
-    */
+     * transforms x, y, z to toFloat32Array
+     * @return {number}
+     */
     public toFloat32Array(): Float32Array {
         return new Float32Array(this.toArray());
     }
