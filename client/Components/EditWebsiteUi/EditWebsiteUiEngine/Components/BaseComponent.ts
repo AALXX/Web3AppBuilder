@@ -1,59 +1,33 @@
 import { Shaders } from '../GL/Shaders';
 import { SimObject } from '../world/SimObject';
+import { IComponent } from './intefaces/IComponent';
+import { IComponentData } from './intefaces/IComponentData';
 
 /**
  * Base compoenent Class resposible with rendering/updating
  */
-export abstract class BaseComponent {
+export abstract class BaseComponent implements IComponent {
     protected _owner: SimObject;
+    protected _data: IComponentData;
 
     public name: string;
 
-
-    /**
-     * Class contructor
-     * @param {string} name
-     */
-    public constructor(name: string) {
-
+    public constructor(data: IComponentData) {
+        this._data = data;
+        this.name = data.name;
     }
 
-    /**
-     * get owner
-     */
     public get owner(): SimObject {
         return this._owner;
     }
 
-    /**
-     * set  owner
-     * @param {SimObject} owner
-     */
     public setOwner(owner: SimObject): void {
         this._owner = owner;
     }
 
-    /**
-     * load
-     */
-    public load(): void {
+    public load(): void {}
 
-    }
+    public update(time: number): void {}
 
-    /**
-     * Update
-     * @param {number} time
-     */
-    public update(time: number): void {
-
-    }
-
-
-    /**
-     * render
-     * @param {Shaders} shader
-     */
-    public render(shader: Shaders): void {
-
-    }
+    public render(shader: Shaders): void {}
 }

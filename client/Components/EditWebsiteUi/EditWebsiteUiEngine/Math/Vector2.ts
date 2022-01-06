@@ -6,49 +6,53 @@ export class Vector2 {
     private _y: number;
 
     /**
-     * Class Constructor
-     * @param {number} x
-     * @param {number} y
+     * Creates a new vector 2.
+     * @param {number} x The x component.
+     * @param {number} y The y component.
      */
     public constructor(x: number = 0, y: number = 0) {
         this._x = x;
         this._y = y;
     }
 
-    /**
-     * getters for x
-     */
+    /** The x component. */
     public get x(): number {
         return this._x;
     }
 
-    /**
-     * setter for x
+    /** The x component.
      * @param {number} value
      */
     public set x(value: number) {
         this._x = value;
     }
 
-    /**
-     * getters for y
-     */
+    /** The y component. */
     public get y(): number {
         return this._y;
     }
 
-    /**
-     * setter for y
+    /** The y component.
      * @param {number} value
      */
     public set y(value: number) {
         this._y = value;
     }
 
-    /**
-     * takes data from josn
-     * @param {any} json
+    /** Returns the data of this vector as a number array.
+     * @return {number}
      */
+    public toArray(): number[] {
+        return [this._x, this._y];
+    }
+
+    /** Returns the data of this vector as a Float32Array.
+     * @return {Float32Array}
+     */
+    public toFloat32Array(): Float32Array {
+        return new Float32Array(this.toArray());
+    }
+
     public setFromJson(json: any): void {
         if (json.x !== undefined) {
             this._x = Number(json.x);
@@ -57,21 +61,5 @@ export class Vector2 {
         if (json.y !== undefined) {
             this._y = Number(json.y);
         }
-    }
-
-    /**
-     * transforms x, y, z to toArray
-     * @return {number}
-     */
-    public toArray(): number[] {
-        return [this._x, this._y];
-    }
-
-    /**
-     * transforms x, y, z to toFloat32Array
-     * @return {number}
-     */
-    public toFloat32Array(): Float32Array {
-        return new Float32Array(this.toArray());
     }
 }

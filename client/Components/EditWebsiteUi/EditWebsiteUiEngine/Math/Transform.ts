@@ -11,34 +11,22 @@ export class Transform {
 
     public scale: Vector3 = Vector3.one;
 
-    /**
-     * Copy Position
-     * @param {Transform }transform
-     */
     public copyFrom(transform: Transform): void {
         this.position.copyFrom(transform.position);
         this.rotation.copyFrom(transform.rotation);
         this.scale.copyFrom(transform.scale);
     }
 
-    /**
-     * getTransformationMatrix func
-     * @return {Matrix4x4}
-     */
     public getTransformationMatrix(): Matrix4x4 {
         const translation = Matrix4x4.translation(this.position);
 
         const rotation = Matrix4x4.rotationXYZ(this.rotation.x, this.rotation.y, this.rotation.z);
         const scale = Matrix4x4.scale(this.scale);
 
-        // Trans * Rot * scale
+        // T * R * S
         return Matrix4x4.multiply(Matrix4x4.multiply(translation, rotation), scale);
     }
 
-    /**
-     * takes data from josn
-     * @param {any} json
-     */
     public setFromJson(json: any): void {
         if (json.position !== undefined) {
             this.position.setFromJson(json.position);
@@ -52,9 +40,4 @@ export class Transform {
             this.scale.setFromJson(json.scale);
         }
     }
-
-    /**
-     * Class constructor
-     */
-    public constructor() {}
 }

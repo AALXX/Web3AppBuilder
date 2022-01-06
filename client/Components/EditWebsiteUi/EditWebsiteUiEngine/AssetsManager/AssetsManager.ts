@@ -9,22 +9,20 @@ export const MESSAGE_ASSET_LOADER_ASSET_LOADED = 'MESSAGE_ASSET_LOADER_ASSET_LOA
 /**
  * @param {IAssetLoader} loader
  */
-export class AssetsManager {
+export class AssetManager {
     private static _loaders: IAssetLoader[] = [];
-    private static _loaddedAssets: { [name: string]: IAsset } = {};
+    private static _loadedAssets: { [name: string]: IAsset } = {};
 
-    /**
-     * Class constructor
-     */
-    constructor() {}
+    /** Private to enforce static method calls and prevent instantiation. */
+    private constructor() {}
 
-    public static initialize = (): void => {
-        AssetsManager._loaders.push(new ImageAssetLoader());
-        AssetsManager._loaders.push(new JsonAssetLoader());
-    };
+    public static initialize(): void {
+        AssetManager._loaders.push(new ImageAssetLoader());
+        AssetManager._loaders.push(new JsonAssetLoader());
+    }
 
     public static registerLoadder = (loader: IAssetLoader): void => {
-        AssetsManager._loaders.push(loader);
+        AssetManager._loaders.push(loader);
     };
 
     /**
@@ -32,7 +30,7 @@ export class AssetsManager {
      * @param {IAsset} asset
      */
     public static onAssetLoaded(asset: IAsset): void {
-        AssetsManager._loaddedAssets[asset.name] = asset;
+        AssetManager._loadedAssets[asset.name] = asset;
         Message.send(MESSAGE_ASSET_LOADER_ASSET_LOADED + asset.name, this, asset);
     }
 
@@ -42,36 +40,37 @@ export class AssetsManager {
      */
     public static loadAsset(assetName: string): void {
         const extension = assetName.split('.').pop().toLowerCase();
-
-        for (const l of AssetsManager._loaders) {
+        for (const l of AssetManager._loaders) {
             if (l.supportedExtensions.indexOf(extension) !== -1) {
                 l.loadAsset(assetName);
                 return;
             }
         }
+
         console.warn('Unable to load asset with extension ' + extension + ' because there is no loader associated with it.');
     }
 
     /**
-     * Is Sset Loaded check
-     * @param {string} assetName
+     * Indicates if an asset with the provided name has been loaded.
+     * @param {string} assetName The asset name to check.
      * @return {boolean}
      */
     public static isAssetLoaded(assetName: string): boolean {
-        return AssetsManager._loaddedAssets[assetName] !== undefined;
+        return AssetManager._loadedAssets[assetName] !== undefined;
     }
 
     /**
-     * Get asset func
-     * @param {string} assetName
+     * Attempts to get an asset with the provided name. If found, it is returned; otherwise, undefined is returned.
+     * @param {string} assetName The asset name to get.
      * @return {IAsset}
      */
     public static getAsset(assetName: string): IAsset {
-        if (AssetsManager._loaddedAssets[assetName] !== undefined) {
-            return AssetsManager._loaddedAssets[assetName];
+        if (AssetManager._loadedAssets[assetName] !== undefined) {
+            return AssetManager._loadedAssets[assetName];
         } else {
-            AssetsManager.loadAsset(assetName);
+            AssetManager.loadAsset(assetName);
         }
+
         return undefined;
     }
 }

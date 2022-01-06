@@ -1,5 +1,7 @@
 import { RefObject } from 'react';
-import { AssetsManager } from './AssetsManager/AssetsManager';
+import { AssetManager } from './AssetsManager/AssetsManager';
+import { ComponentManager } from './Components/ComponentsManager';
+import { SpriteComponentBuilder } from './Components/spriteComponent';
 import { gl, GlUtilities } from './GL/GLUtilities';
 import { BasicShader } from './GL/shaders/basicShader';
 import { Color } from './Graphics/Material/Color';
@@ -30,8 +32,10 @@ export namespace UiDesignEngine {
         public start(canvasRef: RefObject<HTMLCanvasElement>): void {
             this._canvas = canvasRef;
             GlUtilities.initialize(this._canvas);
-            AssetsManager.initialize();
+            AssetManager.initialize();
             LevelManager.initialize();
+
+            ComponentManager.registerBuilder(new SpriteComponentBuilder());
 
             gl.clearColor(0, 0, 0, 1);
 

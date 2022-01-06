@@ -1,19 +1,16 @@
-import { BaseComponent } from '../Components/BaseComponent';
+﻿import { IComponent } from '../Components/intefaces/IComponent';
 import { Shaders } from '../GL/Shaders';
 import { Matrix4x4 } from '../Math/Matrix4x4';
 import { Transform } from '../Math/Transform';
 import { Scene } from './Scene';
 
-/**
- * SimObject Classs
- */
 export class SimObject {
     private _id: number;
     private _children: SimObject[] = [];
     private _parent: SimObject;
     private _isLoaded: boolean = false;
     private _scene: Scene;
-    private _components: BaseComponent[] = [];
+    private _components: IComponent[] = [];
 
     private _localMatrix: Matrix4x4 = Matrix4x4.identity();
     private _worldMatrix: Matrix4x4 = Matrix4x4.identity();
@@ -22,60 +19,34 @@ export class SimObject {
 
     public transform: Transform = new Transform();
 
-    /**
-     * Class Constructor
-     * @param {number} id
-     * @param {string} name
-     * @param {Scene} scene
-     */
     public constructor(id: number, name: string, scene?: Scene) {
         this._id = id;
         this.name = name;
         this._scene = scene;
     }
 
-    /**
-     * Get id method
-     */
     public get id(): number {
         return this._id;
     }
 
-    /**
-     * Get Parent
-     */
     public get parent(): SimObject {
         return this._parent;
     }
 
-    /**
-     * Get Wolrd Matrix
-     */
     public get worldMatrix(): Matrix4x4 {
         return this._worldMatrix;
     }
 
-    /**
-     * Is Loaded
-     */
     public get isLoaded(): boolean {
         return this._isLoaded;
     }
 
-    /**
-     * add SimObject child
-     * @param {SimObject} child
-     */
     public addChild(child: SimObject): void {
         child._parent = this;
         this._children.push(child);
         child.onAdded(this._scene);
     }
 
-    /**
-     * remouveSimObject child
-     * @param {SimObject} child
-     */
     public removeChild(child: SimObject): void {
         const index = this._children.indexOf(child);
         if (index !== -1) {
@@ -84,11 +55,6 @@ export class SimObject {
         }
     }
 
-    /**
-     * getObjectByName recurservley
-     * @param {string} name
-     * @return {SimObject}
-     */
     public getObjectByName(name: string): SimObject {
         if (this.name === name) {
             return this;
@@ -104,33 +70,23 @@ export class SimObject {
         return undefined;
     }
 
-    /**
-     * Add copmponent
-     * @param {BaseComponent} component
-     */
-    public addComponent(component: BaseComponent): void {
+    public addComponent(component: IComponent): void {
         this._components.push(component);
         component.setOwner(this);
     }
 
-    /**
-     * Load Method
-     */
     public load(): void {
         this._isLoaded = true;
 
         for (const c of this._components) {
             c.load();
         }
+
         for (const c of this._children) {
             c.load();
         }
     }
 
-    /**
-     *  Update Method
-     * @param {number} time
-     */
     public update(time: number): void {
         this._localMatrix = this.transform.getTransformationMatrix();
         this.updateWorldMatrix(this._parent !== undefined ? this._parent.worldMatrix : undefined);
@@ -144,10 +100,6 @@ export class SimObject {
         }
     }
 
-    /**
-     * Render Method
-     * @param {Shaders} shader
-     */
     public render(shader: Shaders): void {
         for (const c of this._components) {
             c.render(shader);
@@ -158,18 +110,10 @@ export class SimObject {
         }
     }
 
-    /**
-     * On added Method
-     * @param {Scene} scene
-     */
     protected onAdded(scene: Scene): void {
         this._scene = scene;
     }
 
-    /**
-     * Update world matrix
-     * @param {Matrix4x4} parentWorldMatrix
-     */
     private updateWorldMatrix(parentWorldMatrix: Matrix4x4): void {
         if (parentWorldMatrix !== undefined) {
             this._worldMatrix = Matrix4x4.multiply(parentWorldMatrix, this._localMatrix);

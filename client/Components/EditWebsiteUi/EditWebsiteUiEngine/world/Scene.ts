@@ -1,71 +1,38 @@
+﻿import { SimObject } from './SimObject';
 import { Shaders } from '../GL/Shaders';
-import { SimObject } from './SimObject';
 
-/**
- * Scene class
- */
 export class Scene {
-    private _rootObject: SimObject;
+    private _root: SimObject;
 
-    /**
-     * Clas constructor
-     */
     public constructor() {
-        this._rootObject = new SimObject(0, '__ROOT__', this);
+        this._root = new SimObject(0, '__ROOT__', this);
     }
 
-    /**
-     * Get root
-     */
-    public get rootObject(): SimObject {
-        return this._rootObject;
+    public get root(): SimObject {
+        return this._root;
     }
 
-    /**
-     * Get isloaded
-     */
     public get isLoaded(): boolean {
-        return this._rootObject.isLoaded;
+        return this._root.isLoaded;
     }
 
-    /**
-     * Add Object
-     * @param {SimObject} object
-     */
     public addObject(object: SimObject): void {
-        this._rootObject.addChild(object);
+        this._root.addChild(object);
     }
 
-    /**
-     * getObjectByName Method
-     * @param {string} name
-     * @return {SimObject}
-     */
     public getObjectByName(name: string): SimObject {
-        return this._rootObject.getObjectByName(name);
+        return this._root.getObjectByName(name);
     }
 
-    /**
-     * Load Method
-     */
     public load(): void {
-        this._rootObject.load();
+        this._root.load();
     }
 
-
-    /**
-     * Update method
-     * @param {number} time
-     */
     public update(time: number): void {
-        this._rootObject.update(time);
+        this._root.update(time);
     }
 
-    /**
-    * Render Method
-    * @param {Shaders} shader
-    */
     public render(shader: Shaders): void {
-        this._rootObject.render(shader);
+        this._root.render(shader);
     }
 }

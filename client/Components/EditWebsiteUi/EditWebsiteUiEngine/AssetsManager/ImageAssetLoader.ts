@@ -1,4 +1,4 @@
-import { AssetsManager } from './AssetsManager';
+import { AssetManager } from './AssetsManager';
 import { IAsset } from './IAsset';
 import { IAssetLoader } from './IAssetloader';
 
@@ -27,8 +27,8 @@ export class ImageAsset implements IAsset {
     }
 
     /**
-    * Get Image asset  heigh
-    */
+     * Get Image asset  heigh
+     */
     public get height(): number {
         return this.data.height;
     }
@@ -61,8 +61,8 @@ export class ImageAssetLoader implements IAssetLoader {
      * @param {HTMLImageElement} image
      */
     public onImageLoaded(assetName: string, image: HTMLImageElement): void {
-        // console.log('onImageLoaded: assetName/image', assetName, image);
+        console.log('onImageLoaded: assetName/image', assetName, image);
         const asset = new ImageAsset(assetName, image);
-        AssetsManager.onAssetLoaded(asset);
-    };
+        AssetManager.onAssetLoaded(asset);
+    }
 }

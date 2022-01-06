@@ -1,3 +1,4 @@
+import { ComponentManager } from '../Components/ComponentsManager';
 import { Shaders } from '../GL/Shaders';
 import { Scene } from './Scene';
 import { SimObject } from './SimObject';
@@ -72,7 +73,7 @@ export class Level {
         for (const o in levelData.objects) {
             if (levelData.objects !== undefined) {
                 const object = levelData.objects[o];
-                this.loadSimObject(object, this.scene.rootObject);
+                this.loadSimObject(object, this.scene.root);
             }
         }
     }
@@ -140,6 +141,17 @@ export class Level {
 
         if (dataSection.transform !== undefined) {
             simObject.transform.setFromJson(dataSection.transform);
+        }
+
+        if (dataSection.components !== undefined) {
+            for (const c in dataSection.components) {
+                if (c !== undefined) {
+                    const data = dataSection.components[c];
+                    const component = ComponentManager.extractComponent(data);
+                    // console.log(component);
+                    simObject.addComponent(component);
+                }
+            }
         }
 
         if (dataSection.children !== undefined) {

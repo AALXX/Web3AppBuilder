@@ -1,62 +1,50 @@
 import { Shaders } from '../GL/Shaders';
 import { Sprite } from '../Graphics/Sprite';
 import { BaseComponent } from './BaseComponent';
+import { IComponent } from './intefaces/IComponent';
+import { IComponentBuilder } from './intefaces/IComponentBuilder';
+import { IComponentData } from './intefaces/IComponentData';
 
-/**
- * Get Sprite component data from json
- */
-export class SpriteComponentData {
+export class SpriteComponentData implements IComponentData {
     public name: string;
     public materialName: string;
 
-    /**
-     * Set from json
-     * @param {any} json
-     */
     public setFromJson(json: any): void {
         if (json.name !== undefined) {
             this.name = String(json.name);
         }
 
         if (json.materialName !== undefined) {
-            this.name = String(json.materialName);
+            this.materialName = String(json.materialName);
         }
     }
 }
 
-/**
- * Sprite Component Builder
- */
-export class SpriteComponentBuilder {}
+export class SpriteComponentBuilder implements IComponentBuilder {
+    public get type(): string {
+        return 'sprite';
+    }
 
-/**
- * Sprite Component
- */
+    public buildFromJson(json: any): IComponent {
+        const data = new SpriteComponentData();
+        data.setFromJson(json);
+        return new SpriteComponent(data);
+    }
+}
+
 export class SpriteComponent extends BaseComponent {
     private _sprite: Sprite;
 
-    /**
-     * Class constructor
-     * @param {string} name
-     * @param {materialName} materialName
-     */
-    public constructor(name: string, materialName: string) {
-        super(name);
+    public constructor(data: SpriteComponentData) {
+        super(data);
 
-        this._sprite = new Sprite(name, materialName);
+        this._sprite = new Sprite(data.name, data.materialName);
     }
 
-    /**
-     * Load
-     */
     public load(): void {
         this._sprite.load();
     }
 
-    /**
-     * REnder
-     * @param {Shaders} shader
-     */
     public render(shader: Shaders): void {
         this._sprite.draw(shader, this.owner.worldMatrix);
 
