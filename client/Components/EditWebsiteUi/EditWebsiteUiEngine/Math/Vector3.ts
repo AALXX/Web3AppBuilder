@@ -55,10 +55,16 @@ export class Vector3 {
         this._z = value;
     }
 
+    /**
+     * new vector
+     */
     public static get zero(): Vector3 {
         return new Vector3();
     }
 
+    /**
+     * new vector all values set to 1
+     */
     public static get one(): Vector3 {
         return new Vector3(1, 1, 1);
     }
@@ -78,12 +84,20 @@ export class Vector3 {
         return new Float32Array(this.toArray());
     }
 
+    /**
+     * cope vector
+     * @param {Vector3} vector
+     */
     public copyFrom(vector: Vector3): void {
         this._x = vector._x;
         this._y = vector._y;
         this._z = vector._z;
     }
 
+    /**
+     * set vector from json
+     * @param {any} json
+     */
     public setFromJson(json: any): void {
         if (json.x !== undefined) {
             this._x = Number(json.x);
@@ -96,5 +110,57 @@ export class Vector3 {
         if (json.z !== undefined) {
             this._z = Number(json.z);
         }
+    }
+
+    /**
+     * add vector
+     * @param {Vector3} v
+     * @return {Vector3}
+     */
+    public add(v: Vector3): Vector3 {
+        this._x += v._x;
+        this._y += v._y;
+        this._z += v._z;
+
+        return this;
+    }
+
+    /**
+     * subtract vector
+     * @param {Vector3} v
+     * @return {Vector3}
+     */
+    public subtract(v: Vector3): Vector3 {
+        this._x -= v._x;
+        this._y -= v._y;
+        this._z -= v._z;
+
+        return this;
+    }
+
+    /**
+     * multiply vector
+     * @param {Vector3} v
+     * @return {Vector3}
+     */
+    public multiply(v: Vector3): Vector3 {
+        this._x *= v._x;
+        this._y *= v._y;
+        this._z *= v._z;
+
+        return this;
+    }
+
+    /**
+     * divide vector
+     * @param {Vector3} v
+     * @return {Vector3}
+     */
+    public divide(v: Vector3): Vector3 {
+        this._x /= v._x;
+        this._y /= v._y;
+        this._z /= v._z;
+
+        return this;
     }
 }

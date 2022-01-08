@@ -1,5 +1,5 @@
-import { IAssetLoader } from './IAssetloader';
-import { IAsset } from './IAsset';
+import { IAssetLoader } from './interfaces/IAssetloader';
+import { IAsset } from './interfaces/IAsset';
 import { Message } from '../MessageManager/Message';
 import { ImageAssetLoader } from './ImageAssetLoader';
 import { JsonAssetLoader } from './JsonAssetLoader';
@@ -16,6 +16,9 @@ export class AssetManager {
     /** Private to enforce static method calls and prevent instantiation. */
     private constructor() {}
 
+    /**
+     * Initialize asset manager
+     */
     public static initialize(): void {
         AssetManager._loaders.push(new ImageAssetLoader());
         AssetManager._loaders.push(new JsonAssetLoader());

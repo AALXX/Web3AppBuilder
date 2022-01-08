@@ -15,8 +15,14 @@ export class LevelManager implements IMessageHandler {
     private static _activeZone: Level;
     private static _inst: LevelManager;
 
+    /**
+     * class constructor
+     */
     private constructor() {}
 
+    /**
+     * initialize
+     */
     public static initialize(): void {
         LevelManager._inst = new LevelManager();
 
@@ -24,6 +30,10 @@ export class LevelManager implements IMessageHandler {
         LevelManager._registeredZones[0] = `${process.env.PROJECTFILES_SERVER}/kw8rybzkj4ova9uyj1/TestProject.json`;
     }
 
+    /**
+     * chnge level
+     * @param {number} id
+     */
     public static changeLevel(id: number): void {
         if (LevelManager._activeZone !== undefined) {
             LevelManager._activeZone.onDeactivated();
@@ -40,22 +50,34 @@ export class LevelManager implements IMessageHandler {
                 AssetManager.loadAsset(LevelManager._registeredZones[id]);
             }
         } else {
-            throw new Error('Zone id:' + id.toString() + ' does not exist.');
+            throw new Error('Level id:' + id.toString() + ' does not exist.');
         }
     }
 
+    /**
+     * update method
+     * @param {number} time
+     */
     public static update(time: number): void {
         if (LevelManager._activeZone !== undefined) {
             LevelManager._activeZone.update(time);
         }
     }
 
+    /**
+     * Render method
+     * @param {Shaders} shader
+     */
     public static render(shader: Shaders): void {
         if (LevelManager._activeZone !== undefined) {
             LevelManager._activeZone.render(shader);
         }
     }
 
+    /**
+     * on message event
+     * @param {Message} message
+     */
     public onMessage(message: Message): void {
         if (message.code.indexOf(MESSAGE_ASSET_LOADER_ASSET_LOADED) !== -1) {
             const asset = message.context as JsonAsset;
@@ -63,18 +85,22 @@ export class LevelManager implements IMessageHandler {
         }
     }
 
+    /**
+     * load level
+     * @param {JsonAsse} asset
+     */
     private static loadLevel(asset: JsonAsset): void {
         const zoneData = asset.data;
         let zoneId: number;
         if (zoneData.id === undefined) {
-            throw new Error('Zone file format exception: Zone id not present.');
+            throw new Error('level file format exception: level id not present.');
         } else {
             zoneId = Number(zoneData.id);
         }
 
         let zoneName: string;
         if (zoneData.name === undefined) {
-            throw new Error('Zone file format exception: Zone name not present.');
+            throw new Error('level file format exception: level name not present.');
         } else {
             zoneName = String(zoneData.name);
         }

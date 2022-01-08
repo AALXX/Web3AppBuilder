@@ -1,6 +1,9 @@
-﻿import { SimObject } from './SimObject';
+﻿import { SimObject } from './simObject';
 import { Shaders } from '../GL/Shaders';
 
+/**
+ * Scene class
+ */
 export class Scene {
     private _root: SimObject;
 

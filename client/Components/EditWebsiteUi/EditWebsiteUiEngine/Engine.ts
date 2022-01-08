@@ -1,5 +1,7 @@
 import { RefObject } from 'react';
 import { AssetManager } from './AssetsManager/AssetsManager';
+import { BehaviorManager } from './Behaviors/BehaviorManager';
+import { RotationBehaviorBuilder } from './Behaviors/RotationBehavior';
 import { ComponentManager } from './Components/ComponentsManager';
 import { SpriteComponentBuilder } from './Components/spriteComponent';
 import { gl, GlUtilities } from './GL/GLUtilities';
@@ -36,6 +38,7 @@ export namespace UiDesignEngine {
             LevelManager.initialize();
 
             ComponentManager.registerBuilder(new SpriteComponentBuilder());
+            BehaviorManager.registerBuilder(new RotationBehaviorBuilder());
 
             gl.clearColor(0, 0, 0, 1);
 

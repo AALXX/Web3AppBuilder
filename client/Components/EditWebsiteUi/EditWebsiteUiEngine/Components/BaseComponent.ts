@@ -1,7 +1,7 @@
 import { Shaders } from '../GL/Shaders';
 import { SimObject } from '../world/SimObject';
-import { IComponent } from './intefaces/IComponent';
-import { IComponentData } from './intefaces/IComponentData';
+import { IComponent } from './interfaces/IComponent';
+import { IComponentData } from './interfaces/IComponentData';
 
 /**
  * Base compoenent Class resposible with rendering/updating

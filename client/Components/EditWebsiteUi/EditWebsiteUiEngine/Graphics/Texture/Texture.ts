@@ -18,6 +18,12 @@ export class Texture implements IMessageHandler {
     private _width: number;
     private _height: number;
 
+    /**
+     * class constructor
+     * @param {string} name
+     * @param {number} width
+     * @param {number} height
+     */
     public constructor(name: string, width: number = 1, height: number = 1) {
         this._name = name;
         this._width = width;

@@ -24,8 +24,7 @@
         "react/jsx-indent-props": ["error", 4],
         // max line lenght
         "max-len": ["error", { "code": 220 }],
-        "object-curly-spacing": ["error", "always"],
-        "require-jsdoc": 0
+        "object-curly-spacing": ["error", "always"]
     },
 
     "settings": {

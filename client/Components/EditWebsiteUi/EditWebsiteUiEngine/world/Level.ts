@@ -1,7 +1,8 @@
+import { BehaviorManager } from '../Behaviors/BehaviorManager';
 import { ComponentManager } from '../Components/ComponentsManager';
 import { Shaders } from '../GL/Shaders';
-import { Scene } from './Scene';
-import { SimObject } from './SimObject';
+import { Scene } from './scene';
+import { SimObject } from './simObject';
 
 export enum LevelState {
     UNINITIALIZED,
@@ -148,8 +149,18 @@ export class Level {
                 if (c !== undefined) {
                     const data = dataSection.components[c];
                     const component = ComponentManager.extractComponent(data);
-                    // console.log(component);
                     simObject.addComponent(component);
+                }
+            }
+        }
+
+        if (dataSection.behaviors !== undefined) {
+            for (const b in dataSection.behaviors) {
+                if (b !== undefined) {
+                    const data = dataSection.behaviors[b];
+                    const behavior = BehaviorManager.extractBehavior(data);
+                    console.log(simObject);
+                    simObject.addBehavior(behavior);
                 }
             }
         }

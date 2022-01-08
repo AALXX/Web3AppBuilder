@@ -1,6 +1,6 @@
 import { AssetManager } from './AssetsManager';
-import { IAsset } from './IAsset';
-import { IAssetLoader } from './IAssetloader';
+import { IAsset } from './interfaces/IAsset';
+import { IAssetLoader } from './interfaces/IAssetloader';
 
 /**
  * Image Asset
