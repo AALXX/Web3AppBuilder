@@ -159,7 +159,6 @@ export class Level {
                 if (b !== undefined) {
                     const data = dataSection.behaviors[b];
                     const behavior = BehaviorManager.extractBehavior(data);
-                    console.log(simObject);
                     simObject.addBehavior(behavior);
                 }
             }

@@ -11,7 +11,7 @@ export class AttributeInfo {
     public size: number;
 
     //* The number of elements from the begnening of the buffer
-    public offset: number;
+    public offset: number = 0;
 }
 
 /**
@@ -31,16 +31,14 @@ export class WebGlBuffer {
     private _data: number[] = [];
     private _attributes: AttributeInfo[] = [];
 
-
     /**
      * Create a new WebGl Buffer
-     * @param {number} elementSize
      * @param {number} dataType
      * @param {number} targetBufferType
      * @param {number} drawingMode
      */
-    public constructor(elementSize: number, dataType: number = gl.FLOAT, targetBufferType: number = gl.ARRAY_BUFFER, drawingMode: number = gl.TRIANGLES) {
-        this._elementSize = elementSize;
+    public constructor(dataType: number = gl.FLOAT, targetBufferType: number = gl.ARRAY_BUFFER, drawingMode: number = gl.TRIANGLES) {
+        this._elementSize = 0;
         this._dataType = dataType;
         this._targetBufferType = targetBufferType;
         this._drawingMode = drawingMode;
@@ -66,7 +64,6 @@ export class WebGlBuffer {
         }
         /* eslint-enable */
 
-        this._stide = this._elementSize * this._typeSize;
         this._buffer = gl.createBuffer();
     }
 
@@ -98,7 +95,10 @@ export class WebGlBuffer {
     //* Adds an atribute with given info to buffer
     public addAttributeLocation = (info: AttributeInfo): void => {
         this._hasAttributeLocation = true;
+        info.offset = this._elementSize;
         this._attributes.push(info);
+        this._elementSize += info.size;
+        this._stide = this._elementSize * this._typeSize;
     };
 
     //* Add data to this buffer
@@ -139,7 +139,6 @@ export class WebGlBuffer {
                 break;
         }
         /* eslint-enable */
-
 
         gl.bufferData(this._targetBufferType, bufferData, gl.STATIC_DRAW);
     };

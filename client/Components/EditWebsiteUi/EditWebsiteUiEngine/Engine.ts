@@ -21,11 +21,22 @@ export namespace UiDesignEngine {
 
         private _basicShader: BasicShader;
         private _projection: Matrix4x4;
+        private _previousTime: number;
 
         /**
          ** Class Constructor
          */
         public constructor() {}
+
+        /**
+         * Resize Method
+         */
+        public resize(): void {
+            this._canvas.current.width = window.innerWidth;
+            this._canvas.current.height = window.innerHeight;
+            gl.viewport(0, 0, this._canvas.current.width, this._canvas.current.height);
+            this._projection = Matrix4x4.orthographic(0, this._canvas.current.width, this._canvas.current.height, 0, -100.0, 100.0);
+        }
 
         /**
          * Start Method
@@ -37,16 +48,22 @@ export namespace UiDesignEngine {
             AssetManager.initialize();
             LevelManager.initialize();
 
+            //* register component builder
             ComponentManager.registerBuilder(new SpriteComponentBuilder());
+
+            //* register bhavior builder
             BehaviorManager.registerBuilder(new RotationBehaviorBuilder());
 
-            gl.clearColor(0, 0, 0, 1);
+            //* register Mterials
+            MaterialManager.registerMaterial(new Material('wood', '../assets/texure.jpg', new Color(255, 255, 255, 255)));
+            MaterialManager.registerMaterial(new Material('carMat', '../assets/car.png', new Color(255, 255, 255, 255)));
+
+            gl.clearColor(0.5, 0.5, 0.5, 1);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
             this._basicShader = new BasicShader();
             this._basicShader.useShader();
-
-            //* Load Mterials
-            MaterialManager.registerMaterial(new Material('wood', '../assets/texure.jpg', new Color(255, 255, 255, 255)));
 
             //* Load
             this._projection = Matrix4x4.orthographic(0, this._canvas.current.width, this._canvas.current.height, 0, -100.0, 100.0);
@@ -55,16 +72,34 @@ export namespace UiDesignEngine {
             LevelManager.changeLevel(0);
 
             this.resize();
+            this.loop();
+        }
+
+        /**
+         * Loop Method
+         */
+        public loop(): void {
             this.update();
+            this.render();
         }
 
         /**
          * Update Method
          */
         public update(): void {
-            MessageBus.update(0);
+            const delta = performance.now() - this._previousTime;
 
-            LevelManager.update(0);
+            MessageBus.update(delta);
+
+            LevelManager.update(delta);
+
+            this._previousTime = performance.now();
+        }
+
+        /**
+         * Render method
+         */
+        public render(): void {
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             LevelManager.render(this._basicShader);
@@ -73,17 +108,7 @@ export namespace UiDesignEngine {
             gl.uniformMatrix4fv(projectionPosition, false, new Float32Array(this._projection.data));
 
             //* Call this instance update
-            requestAnimationFrame(this.update.bind(this));
-        }
-
-        /**
-         * Resize Method
-         */
-        public resize(): void {
-            this._canvas.current.width = window.innerWidth;
-            this._canvas.current.height = window.innerHeight;
-            gl.viewport(0, 0, this._canvas.current.width, this._canvas.current.height);
-            this._projection = Matrix4x4.orthographic(0, this._canvas.current.width, this._canvas.current.height, 0, -100.0, 100.0);
+            requestAnimationFrame(this.loop.bind(this));
         }
     }
 }

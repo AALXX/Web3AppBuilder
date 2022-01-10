@@ -47,7 +47,6 @@ export class RotationBehaviorBuilder implements IBehaviorBuilder {
      */
     public buildFromJson(json: any): IBehavior {
         const data = new RotationBehaviorData();
-        console.log(json);
         data.setFromJson(json);
         return new RotationBehavior(data);
     }

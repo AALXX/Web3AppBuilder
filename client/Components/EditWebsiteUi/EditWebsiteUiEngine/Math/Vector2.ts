@@ -39,6 +39,29 @@ export class Vector2 {
         this._y = value;
     }
 
+    /**
+     * new vector all set to 0
+     */
+    public static get zero(): Vector2 {
+        return new Vector2();
+    }
+
+    /**
+     * new vector all set to 1
+     */
+    public static get one(): Vector2 {
+        return new Vector2(1, 1);
+    }
+
+    /**
+     * cope vector
+     * @param {Vector2} vector
+     */
+    public copyFrom(vector: Vector2): void {
+        this._x = vector._x;
+        this._y = vector._y;
+    }
+
     /** Returns the data of this vector as a number array.
      * @return {number}
      */
@@ -53,6 +76,10 @@ export class Vector2 {
         return new Float32Array(this.toArray());
     }
 
+    /**
+     * set vector to one in the json file
+     * @param {any} json
+     */
     public setFromJson(json: any): void {
         if (json.x !== undefined) {
             this._x = Number(json.x);

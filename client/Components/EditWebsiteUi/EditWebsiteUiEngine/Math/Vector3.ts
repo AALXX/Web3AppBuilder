@@ -56,7 +56,7 @@ export class Vector3 {
     }
 
     /**
-     * new vector
+     * new vector all set to 0
      */
     public static get zero(): Vector3 {
         return new Vector3();

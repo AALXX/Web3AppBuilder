@@ -66,6 +66,6 @@
         "jsx": "preserve",
         "strictNullChecks": false //* THIS IS NOT ASOLUTION
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/project/edit.tsx"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/project/edit.tsx", "pages/project/tets.js"],
     "exclude": ["node_modules"]
 }

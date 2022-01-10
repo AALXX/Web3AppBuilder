@@ -4,6 +4,7 @@ import { WebGlBuffer, AttributeInfo } from '../GL/WebGlBuffer';
 import { Matrix4x4 } from '../Math/Matrix4x4';
 import { Material } from './Material/Material';
 import { MaterialManager } from './Material/MaterialManager';
+import { Vertex } from './Vertex';
 
 /**
  * Sprite Class
@@ -16,6 +17,8 @@ export class Sprite {
     private _buffer: WebGlBuffer;
     private _materialName: string;
     private _material: Material;
+
+    private _vertices: Vertex[] = [];
 
     /**
      * Class Constructor
@@ -53,32 +56,32 @@ export class Sprite {
      * Load Method
      */
     public load(): void {
-        this._buffer = new WebGlBuffer(5);
+        this._buffer = new WebGlBuffer();
 
         const positionAttribute = new AttributeInfo();
         positionAttribute.location = 0;
-        positionAttribute.offset = 0;
         positionAttribute.size = 3;
         this._buffer.addAttributeLocation(positionAttribute);
 
         const texCoordAttribute = new AttributeInfo();
         texCoordAttribute.location = 1;
-        texCoordAttribute.offset = 3;
         texCoordAttribute.size = 2;
         this._buffer.addAttributeLocation(texCoordAttribute);
 
-        const vertices = [
-            // x,y,z   ,u, v
-            0, 0, 0, 0, 0,
-            0, this._height, 0, 0, 1.0,
-            this._width, this._height, 0, 1.0, 1.0,
+        this._vertices = [
+            // x,y,z   u, v
+            new Vertex(0, 0, 0, 0, 0),
+            new Vertex(0, this._height, 0, 0, 1.0),
+            new Vertex(this._width, this._height, 0, 1.0, 1.0),
 
-            this._width, this._height, 0, 1.0, 1.0,
-            this._width, 0, 0, 1.0, 0,
-            0, 0, 0, 0, 0,
+            new Vertex(this._width, this._height, 0, 1.0, 1.0),
+            new Vertex(this._width, 0, 0, 1.0, 0),
+            new Vertex(0, 0, 0, 0, 0),
         ];
 
-        this._buffer.pushBackData(vertices);
+        for (const v of this._vertices) {
+            this._buffer.pushBackData(v.toArray());
+        }
         this._buffer.upload();
         this._buffer.unBind();
     }
@@ -87,9 +90,7 @@ export class Sprite {
      * update Met
      * @param {number} time
      */
-    public update(time: number): void {
-
-    }
+    public update(time: number): void {}
 
     /**
      * Draw Method
