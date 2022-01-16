@@ -3,7 +3,7 @@ import { IComponent } from '../Components/interfaces/IComponent';
 import { Shaders } from '../GL/Shaders';
 import { Matrix4x4 } from '../Math/Matrix4x4';
 import { Transform } from '../Math/Transform';
-import { Scene } from './scene';
+import { Scene } from './Scene';
 
 /**
  * Null object in the world responable for world state

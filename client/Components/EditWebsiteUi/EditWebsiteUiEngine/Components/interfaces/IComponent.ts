@@ -1,5 +1,5 @@
 import { Shaders } from '../../GL/Shaders';
-import { SimObject } from '../../world/SimObject';
+import { SimObject } from '../../world/simObject';
 
 export interface IComponent {
     name: string;

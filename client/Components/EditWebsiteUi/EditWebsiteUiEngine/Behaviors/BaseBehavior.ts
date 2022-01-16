@@ -1,4 +1,4 @@
-import { SimObject } from '../world/SimObject';
+import { SimObject } from '../world/simObject';
 import { IBehavior } from './interfaces/IBehavior';
 import { IBehaviorData } from './interfaces/IBehaviorData';
 
@@ -6,12 +6,13 @@ import { IBehaviorData } from './interfaces/IBehaviorData';
  * Base Behavior class
  */
 export abstract class BaseBehavior implements IBehavior {
-    name: string;
+    public name: string;
 
     protected _data: IBehaviorData;
     protected _owner: SimObject;
 
-    /** class constructo
+    /**
+     * class constructor
      * @param {IBehaviorData} data
      */
     public constructor(data: IBehaviorData) {
@@ -20,12 +21,17 @@ export abstract class BaseBehavior implements IBehavior {
     }
 
     /**
-     * set owner mthon
+     * Set owner
      * @param {SimObject} owner
      */
     public setOwner(owner: SimObject): void {
         this._owner = owner;
     }
+
+    /**
+     * update ready check
+     */
+    public updateReady(): void {}
 
     /**
      * update method
@@ -34,8 +40,8 @@ export abstract class BaseBehavior implements IBehavior {
     public update(time: number): void {}
 
     /**
-     * applay method
-     * @param {anu} userData
+     * apply method
+     * @param {any}  userData
      */
     public apply(userData: any): void {}
 }

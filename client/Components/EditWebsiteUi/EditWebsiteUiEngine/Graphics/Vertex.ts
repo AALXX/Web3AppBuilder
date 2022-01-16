@@ -41,7 +41,6 @@ export class Vertex {
 
         return array;
     }
-
     /**
      * Returns the data of this vertex as a Float32Array.
      * @return {FlatArray}

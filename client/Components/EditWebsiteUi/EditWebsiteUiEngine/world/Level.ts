@@ -68,13 +68,14 @@ export class Level {
      */
     public initialize(levelData: any): void {
         if (levelData.objects === undefined) {
-            throw new Error('Level init error: object ot found');
+            throw new Error('Zone initialization error: objects not present.');
         }
 
         for (const o in levelData.objects) {
             if (levelData.objects !== undefined) {
-                const object = levelData.objects[o];
-                this.loadSimObject(object, this.scene.root);
+                const obj = levelData.objects[o];
+
+                this.loadSimObject(obj, this._scene.root);
             }
         }
     }
@@ -132,7 +133,6 @@ export class Level {
      */
     public loadSimObject(dataSection: any, parent: SimObject) {
         let name: string;
-
         if (dataSection.name !== undefined) {
             name = String(dataSection.name);
         }
@@ -165,10 +165,10 @@ export class Level {
         }
 
         if (dataSection.children !== undefined) {
-            for (const c in dataSection.children) {
-                if (dataSection.children !== undefined) {
-                    const object = dataSection.children[c];
-                    this.loadSimObject(object, simObject);
+            for (const o in dataSection.children) {
+                if (o !== undefined) {
+                    const obj = dataSection.children[o];
+                    this.loadSimObject(obj, simObject);
                 }
             }
         }

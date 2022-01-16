@@ -1,7 +1,9 @@
 import { RefObject } from 'react';
 import { AssetManager } from './AssetsManager/AssetsManager';
 import { BehaviorManager } from './Behaviors/BehaviorManager';
-import { RotationBehaviorBuilder } from './Behaviors/RotationBehavior';
+import { KeyboardMovementBehaviorBuilder } from './Behaviors/keyboardMovementBehavior';
+import { CollisionManager } from './collision/collisionManager';
+import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { ComponentManager } from './Components/ComponentsManager';
 import { SpriteComponentBuilder } from './Components/spriteComponent';
 import { gl, GlUtilities } from './GL/GLUtilities';
@@ -9,19 +11,21 @@ import { BasicShader } from './GL/shaders/basicShader';
 import { Color } from './Graphics/Material/Color';
 import { Material } from './Graphics/Material/Material';
 import { MaterialManager } from './Graphics/Material/MaterialManager';
+import { InputManager, MouseContext } from './Input/InputManager';
 import { Matrix4x4 } from './Math/Matrix4x4';
+import { IMessageHandler } from './MessageManager/IMessageHandler';
+import { Message } from './MessageManager/Message';
 import { MessageBus } from './MessageManager/MessageBus';
 import { LevelManager } from './world/LevelManager';
 export namespace UiDesignEngine {
     /**
      ** Engine Class
      */
-    export class Engine {
+    export class Engine implements IMessageHandler {
         private _canvas: RefObject<HTMLCanvasElement>;
-
         private _basicShader: BasicShader;
         private _projection: Matrix4x4;
-        private _previousTime: number;
+        private _previousTime: number = 0;
 
         /**
          ** Class Constructor
@@ -46,13 +50,16 @@ export namespace UiDesignEngine {
             this._canvas = canvasRef;
             GlUtilities.initialize(this._canvas);
             AssetManager.initialize();
+            InputManager.initialize();
+
             LevelManager.initialize();
 
             //* register component builder
             ComponentManager.registerBuilder(new SpriteComponentBuilder());
 
-            //* register bhavior builder
-            BehaviorManager.registerBuilder(new RotationBehaviorBuilder());
+            ComponentManager.registerBuilder(new CollisionComponentBuilder());
+
+            BehaviorManager.registerBuilder(new KeyboardMovementBehaviorBuilder());
 
             //* register Mterials
             MaterialManager.registerMaterial(new Material('wood', '../assets/texure.jpg', new Color(255, 255, 255, 255)));
@@ -76,6 +83,17 @@ export namespace UiDesignEngine {
         }
 
         /**
+         * on message recived
+         * @param {Message} message
+         */
+        public onMessage(message: Message): void {
+            if (message.code === 'MOUSE_UP') {
+                const context = message.context as MouseContext;
+                console.log(`Pos: [${context.position.x},${context.position.y}]`);
+            }
+        }
+
+        /**
          * Loop Method
          */
         public loop(): void {
@@ -90,8 +108,8 @@ export namespace UiDesignEngine {
             const delta = performance.now() - this._previousTime;
 
             MessageBus.update(delta);
-
             LevelManager.update(delta);
+            CollisionManager.update(delta);
 
             this._previousTime = performance.now();
         }

@@ -13,9 +13,9 @@ interface EditProjectProps{
 const EditProject:FC<EditProjectProps> = () => {
     return (
         <div className={styles.PageContainer}>
-            <div className={styles.PagesTab}>
+            {/* <div className={styles.PagesTab}>
 
-            </div>
+            </div> */}
 
             <div className={styles.PageEditorContainer}>
 
@@ -25,9 +25,9 @@ const EditProject:FC<EditProjectProps> = () => {
             </div>
 
 
-            <div className={styles.ComponentsProprietyTab}>
+            {/* <div className={styles.ComponentsProprietyTab}>
 
-            </div>
+            </div> */}
         </div>
     );
 };

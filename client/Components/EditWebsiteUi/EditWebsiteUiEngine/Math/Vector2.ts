@@ -1,6 +1,7 @@
 /**
  * Vector3 class
  */
+/** Represents a 2-component vector. */
 export class Vector2 {
     private _x: number;
     private _y: number;
@@ -20,7 +21,8 @@ export class Vector2 {
         return this._x;
     }
 
-    /** The x component.
+    /**
+     * The x component
      * @param {number} value
      */
     public set x(value: number) {
@@ -32,7 +34,8 @@ export class Vector2 {
         return this._y;
     }
 
-    /** The y component.
+    /**
+     * The y component
      * @param {number} value
      */
     public set y(value: number) {
@@ -40,21 +43,32 @@ export class Vector2 {
     }
 
     /**
-     * new vector all set to 0
+     * new vector all values 0
      */
     public static get zero(): Vector2 {
         return new Vector2();
     }
 
     /**
-     * new vector all set to 1
+     * new vector all values 0
      */
     public static get one(): Vector2 {
         return new Vector2(1, 1);
     }
 
     /**
-     * cope vector
+     * calculates the distance betwen 2 vectors
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @return {number}
+     */
+    public static distance(a: Vector2, b: Vector2): number {
+        const diff = a.clone().subtract(b);
+        return Math.sqrt(diff.x * diff.x + diff.y * diff.y);
+    }
+
+    /**
+     * copy values from another vector
      * @param {Vector2} vector
      */
     public copyFrom(vector: Vector2): void {
@@ -62,14 +76,16 @@ export class Vector2 {
         this._y = vector._y;
     }
 
-    /** Returns the data of this vector as a number array.
+    /**
+     * Returns the data of this vector as a number array.
      * @return {number}
      */
     public toArray(): number[] {
         return [this._x, this._y];
     }
 
-    /** Returns the data of this vector as a Float32Array.
+    /**
+     * Returns the data of this vector as a Float32Array.
      * @return {Float32Array}
      */
     public toFloat32Array(): Float32Array {
@@ -77,7 +93,7 @@ export class Vector2 {
     }
 
     /**
-     * set vector to one in the json file
+     * set data from json
      * @param {any} json
      */
     public setFromJson(json: any): void {
@@ -88,5 +104,61 @@ export class Vector2 {
         if (json.y !== undefined) {
             this._y = Number(json.y);
         }
+    }
+
+    /**
+     * add vector
+     * @param {Vector2} vector
+     * @return {Vector2}
+     */
+    public add(vector: Vector2): Vector2 {
+        this._x += vector._x;
+        this._y += vector._y;
+
+        return this;
+    }
+
+    /**
+     * add vector
+     * @param {Vector2} vector
+     * @return {Vector2}
+     */
+    public subtract(vector: Vector2): Vector2 {
+        this._x -= vector._x;
+        this._y -= vector._y;
+
+        return this;
+    }
+
+    /**
+     * add vector
+     * @param {Vector2} vector
+     * @return {Vector2}
+     */
+    public multiply(vector: Vector2): Vector2 {
+        this._x *= vector._x;
+        this._y *= vector._y;
+
+        return this;
+    }
+
+    /**
+     * add vector
+     * @param {Vector2} vector
+     * @return {Vector2}
+     */
+    public divide(vector: Vector2): Vector2 {
+        this._x /= vector._x;
+        this._y /= vector._y;
+
+        return this;
+    }
+
+    /**
+     * clone vector
+     * @return {Vector2}
+     */
+    public clone(): Vector2 {
+        return new Vector2(this._x, this._y);
     }
 }
