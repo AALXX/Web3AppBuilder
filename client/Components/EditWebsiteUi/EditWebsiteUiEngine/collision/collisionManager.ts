@@ -1,9 +1,10 @@
 import { CollisionComponent } from '../Components/collisionComponent';
+import { Message } from '../MessageManager/Message';
 
 /**
  * CollisionData class
  */
-class CollisionData {
+export class CollisionData {
     public a: CollisionComponent;
     public b: CollisionComponent;
     public time: number;
@@ -99,6 +100,8 @@ export class CollisionManager {
                         const col = new CollisionData(CollisionManager._totalTime, comp, other);
                         comp.onCollisionEntry(other);
                         other.onCollisionEntry(comp);
+                        Message.sendPriority(`COLLISION_ENTRY: ${comp.name}`, this, col);
+                        Message.sendPriority(`COLLISION_ENTRY: ${other.name}`, this, other);
                         this._collisionData.push(col);
                     }
                 }
@@ -122,6 +125,9 @@ export class CollisionManager {
 
             data.a.onCollisionExit(data.b);
             data.b.onCollisionExit(data.a);
+
+            Message.sendPriority(`COLLISION_EXIT: ${data.b.name}`, this, data);
+            Message.sendPriority(`COLLISION_EXIT: ${data.a.name}`, this, data);
         }
     }
 }

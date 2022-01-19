@@ -1,4 +1,4 @@
-import { SimObject } from '../world/simObject';
+import { EditorEntity } from '../world/EditorEntity';
 import { IBehavior } from './interfaces/IBehavior';
 import { IBehaviorData } from './interfaces/IBehaviorData';
 
@@ -8,8 +8,15 @@ import { IBehaviorData } from './interfaces/IBehaviorData';
 export abstract class BaseBehavior implements IBehavior {
     public name: string;
 
+    /**
+     * The data associated with this behavior.
+     */
     protected _data: IBehaviorData;
-    protected _owner: SimObject;
+
+    /**
+     * The owning entity of this behavior.
+     */
+    protected _owner: EditorEntity;
 
     /**
      * class constructor
@@ -22,20 +29,20 @@ export abstract class BaseBehavior implements IBehavior {
 
     /**
      * Set owner
-     * @param {SimObject} owner
+     * @param {EditorEntity} owner
      */
-    public setOwner(owner: SimObject): void {
+    public setOwner(owner: EditorEntity): void {
         this._owner = owner;
     }
 
     /**
-     * update ready check
+     * Performs pre-update procedures on this behavior.
      */
     public updateReady(): void {}
 
     /**
-     * update method
-     * @param {number} time
+     * Performs update procedures on this behavior.
+     * @param {number} time The delta time in milliseconds since the last update.
      */
     public update(time: number): void {}
 

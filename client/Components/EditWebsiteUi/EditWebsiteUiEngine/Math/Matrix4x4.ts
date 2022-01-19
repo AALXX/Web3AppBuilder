@@ -1,8 +1,6 @@
 import { Vector3 } from './Vector3.js';
 
-/**
- * Matrix 4x4 class
- */
+/** A 4x4 matrix to be used for transformations. */
 export class Matrix4x4 {
     private _data: number[] = [];
 
@@ -68,6 +66,11 @@ export class Matrix4x4 {
         return m;
     }
 
+    /**
+     * Creates a rotation matrix on the X axis from the provided angle in radians.
+     * @param {number} angleInRadians The angle in radians.
+     * @return {Matrix4x4}
+     */
     public static rotationX(angleInRadians: number): Matrix4x4 {
         const m = new Matrix4x4();
 
@@ -82,6 +85,12 @@ export class Matrix4x4 {
         return m;
     }
 
+    /**
+     * Creates a rotation matrix on the Y axis from the provided angle in radians.
+     * @param {number} angleInRadians The angle in radians.
+     * @return {Matrix4x4}
+     *
+     */
     public static rotationY(angleInRadians: number): Matrix4x4 {
         const m = new Matrix4x4();
 
@@ -96,6 +105,11 @@ export class Matrix4x4 {
         return m;
     }
 
+    /**
+     * Creates a rotation matrix on the Z axis from the provided angle in radians.
+     * @param {number} angleInRadians The angle in radians.
+     * @return {Matrix4x4}
+     */
     public static rotationZ(angleInRadians: number): Matrix4x4 {
         const m = new Matrix4x4();
 
@@ -110,6 +124,13 @@ export class Matrix4x4 {
         return m;
     }
 
+    /**
+     * Creates a rotation matrix from the provided angles in radians.
+     * @param {number} xRadians The angle in radians on the X axis.
+     * @param {number} yRadians The angle in radians on the Y axis.
+     * @param {number} zRadians The angle in radians on the Z axis.
+     * @return {Matrix4x4}
+     */
     public static rotationXYZ(xRadians: number, yRadians: number, zRadians: number): Matrix4x4 {
         const rx = Matrix4x4.rotationX(xRadians);
         const ry = Matrix4x4.rotationY(yRadians);
@@ -119,6 +140,11 @@ export class Matrix4x4 {
         return Matrix4x4.multiply(Matrix4x4.multiply(rz, ry), rx);
     }
 
+    /**
+     * Creates a scale matrix.
+     * @param {Vector3} scale The scale to use.
+     * @return {Matrix4x4}
+     */
     public static scale(scale: Vector3): Matrix4x4 {
         const m = new Matrix4x4();
 
@@ -129,6 +155,12 @@ export class Matrix4x4 {
         return m;
     }
 
+    /**
+     * Multiplies matrix a by matrix b and returns the result.
+     * @param {Matrix4x4} a The first matrix.
+     * @param {Matrix4x4} b The second matrix.
+     * @return {Matrix4x4}
+     */
     public static multiply(a: Matrix4x4, b: Matrix4x4): Matrix4x4 {
         const m = new Matrix4x4();
 
@@ -192,6 +224,10 @@ export class Matrix4x4 {
         return new Float32Array(this._data);
     }
 
+    /**
+     * Creates a copy of matrix m.
+     * @param {Matrix4x4} m The matrix to copy.
+     */
     public copyFrom(m: Matrix4x4): void {
         for (let i = 0; i < 16; ++i) {
             this._data[i] = m._data[i];

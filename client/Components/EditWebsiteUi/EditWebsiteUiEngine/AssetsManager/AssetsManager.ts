@@ -24,6 +24,10 @@ export class AssetManager {
         AssetManager._loaders.push(new JsonAssetLoader());
     }
 
+    /**
+     * Registers the provided loader with this asset manager.
+     * @param {IAssetLoader} loader The loader to be registered.
+     */
     public static registerLoadder = (loader: IAssetLoader): void => {
         AssetManager._loaders.push(loader);
     };
@@ -42,7 +46,7 @@ export class AssetManager {
      * @param {string} assetName The name/url of the asset to be loaded.
      */
     public static loadAsset(assetName: string): void {
-        const extension = assetName.split('.').pop().toLowerCase();
+        const extension = assetName.toString().split('.').pop().toLowerCase();
         for (const l of AssetManager._loaders) {
             if (l.supportedExtensions.indexOf(extension) !== -1) {
                 l.loadAsset(assetName);

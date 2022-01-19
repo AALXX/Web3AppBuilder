@@ -1,37 +1,59 @@
+import { RefObject } from 'react';
 import { Vector2 } from '../Math/Vector2';
 import { Message } from '../MessageManager/Message';
 
+// / <reference path="../Math/Vector2.ts" />
+
+/** The message code for mouse down events. */
+export const MESSAGE_MOUSE_DOWN: string = 'MOUSE_DOWN';
+
+/** The message code for mouse up events. */
+export const MESSAGE_MOUSE_UP: string = 'MOUSE_UP';
+
+/* eslint-disable */
+
+/** Defines key codes for keyboard keys. */
 export enum Keys {
+    /** The left arrow key */
     ARROW_LEFT = 37,
+
+    /** The up arrow key */
     ARROW_UP = 38,
+
+    /** The right arrow key */
     ARROW_RIGHT = 39,
+
+    /** The down arrow key */
     ARROW_DOWN = 40,
 }
 
-/**
- * mouse context class
- */
+/* eslint-enable */
+
+/** Contains mouse state data to be used throughout the engine. */
 export class MouseContext {
+    /** Indicates if the left mouse button is down. Default: false. */
     public leftDown: boolean;
+
+    /** Indicates if the right mouse button is down. Default: false. */
     public rightDown: boolean;
+
+    /** The mouse position. */
     public position: Vector2;
 
     /**
-     * class cosntructor
+     * class constructor
      * @param {boolean} leftDown
      * @param {boolean} rightDown
      * @param {Vector2} position
      */
-    public constructor(leftDown: boolean, rightDown: boolean, position: Vector2) {
+    public constructor(leftDown: boolean = false, rightDown: boolean = false, position: Vector2) {
         this.leftDown = leftDown;
         this.rightDown = rightDown;
         this.position = position;
     }
 }
 
-/**
- * InputManager claass
- */
+/** Manages all input from devices such as the mouse and keyboard. */
 export class InputManager {
     private static _keys: boolean[] = [];
 
@@ -41,78 +63,92 @@ export class InputManager {
     private static _mouseY: number;
     private static _leftDown: boolean = false;
     private static _rightDown: boolean = false;
+    private static _resolutionScale: Vector2 = Vector2.one;
 
     /**
-     * initizalize the input manager
+     * Initializes the input manager.
+     * @param {RefObject<HTMLCanvasElement>} viewport The canvas element to attach input events to
      */
-    public static initialize(): void {
+    public static initialize(viewport: RefObject<HTMLCanvasElement>): void {
         for (let i = 0; i < 255; ++i) {
             InputManager._keys[i] = false;
         }
 
         window.addEventListener('keydown', InputManager.onKeyDown);
         window.addEventListener('keyup', InputManager.onKeyUp);
-        window.addEventListener('mousemove', InputManager.onMouseMove);
-        window.addEventListener('mousedown', InputManager.onMouseDown);
-        window.addEventListener('mouseup', InputManager.onMouseUp);
+
+        viewport.current.addEventListener('mousemove', InputManager.onMouseMove);
+        viewport.current.addEventListener('mousedown', InputManager.onMouseDown);
+        viewport.current.addEventListener('mouseup', InputManager.onMouseUp);
     }
 
     /**
-     * is key down check
-     * @param {Keys} key
+     * Indicates if the provided key is currently down.
+     * @param {keays} key  The key to check.
      * @return {boolean}
      */
     public static isKeyDown(key: Keys): boolean {
         return InputManager._keys[key];
     }
 
-    /**
-     * get mouse pos
+    /** Gets the current mouse position.
      * @return {Vector2}
      */
     public static getMousePosition(): Vector2 {
         return new Vector2(this._mouseX, this._mouseY);
     }
 
+    /** Gets the current mouse position.
+     * @return {Vector2}
+     */
+    public static getPreviousMousePosition(): Vector2 {
+        return new Vector2(this._previousMouseX, this._previousMouseY);
+    }
+
     /**
-     * onKey down check
+     * Sets the resolution scale, which is a ratio of the window width and height
+     * versus the viewport canvas width and height.
+     * @param {Vector2} scale The scale to set.
+     */
+    public static setResolutionScale(scale: Vector2): void {
+        InputManager._resolutionScale.copyFrom(scale);
+    }
+
+    /**
+     * onKeyDown event func
      * @param {KeyboardEvent} event
      * @return {boolean}
      */
     private static onKeyDown(event: KeyboardEvent): boolean {
         InputManager._keys[event.keyCode] = true;
         return true;
-        // event.preventDefault();
-        // event.stopPropagation();
-        // return false;
     }
 
     /**
-     * on keyup check
+     * onKeyUp event func
      * @param {KeyboardEvent} event
      * @return {boolean}
      */
     private static onKeyUp(event: KeyboardEvent): boolean {
         InputManager._keys[event.keyCode] = false;
         return true;
-        // event.preventDefault();
-        // event.stopPropagation();
-        // return false;
     }
 
     /**
-     * on mouse move check
+     * onMouseMove event func
      * @param {MouseEvent} event
      */
     private static onMouseMove(event: MouseEvent): void {
         InputManager._previousMouseX = InputManager._mouseX;
         InputManager._previousMouseY = InputManager._mouseY;
-        InputManager._mouseX = event.clientX;
-        InputManager._mouseY = event.clientY;
+
+        const rect = (event.target as HTMLElement).getBoundingClientRect();
+        InputManager._mouseX = (event.clientX - Math.round(rect.left)) * (1 / InputManager._resolutionScale.x);
+        InputManager._mouseY = (event.clientY - Math.round(rect.top)) * (1 / InputManager._resolutionScale.y);
     }
 
     /**
-     * on mouse down check
+     * onMouseDown event func
      * @param {MouseEvent} event
      */
     private static onMouseDown(event: MouseEvent): void {
@@ -122,10 +158,13 @@ export class InputManager {
             this._rightDown = true;
         }
 
-        Message.send('MOUSE_DOWN', this, new MouseContext(InputManager._leftDown, InputManager._rightDown, InputManager.getMousePosition()));
+        Message.send(MESSAGE_MOUSE_DOWN, this, new MouseContext(InputManager._leftDown, InputManager._rightDown, InputManager.getMousePosition()));
     }
 
-    // eslint-disable-next-line require-jsdoc
+    /**
+     * onMouseUp event func
+     * @param {MouseEvent} event
+     */
     private static onMouseUp(event: MouseEvent): void {
         if (event.button === 0) {
             this._leftDown = false;
@@ -133,6 +172,6 @@ export class InputManager {
             this._rightDown = false;
         }
 
-        Message.send('MOUSE_UP', this, new MouseContext(InputManager._leftDown, InputManager._rightDown, InputManager.getMousePosition()));
+        Message.send(MESSAGE_MOUSE_UP, this, new MouseContext(InputManager._leftDown, InputManager._rightDown, InputManager.getMousePosition()));
     }
 }

@@ -1,6 +1,6 @@
-import { Shaders } from '../GL/Shaders';
 import { Sprite } from '../Graphics/Sprite';
 import { Vector3 } from '../Math/Vector3';
+import { RenderView } from '../Renderer/RenderView';
 import { BaseComponent } from './BaseComponent';
 import { IComponent } from './interfaces/IComponent';
 import { IComponentBuilder } from './interfaces/IComponentBuilder';
@@ -98,11 +98,11 @@ export class SpriteComponent extends BaseComponent {
 
     /**
      * REnder method
-     * @param {Shaders} shader
+     * @param {RenderView} renderView
      */
-    public render(shader: Shaders): void {
-        this._sprite.draw(shader, this.owner.worldMatrix);
+    public render(renderView: RenderView): void {
+        this._sprite.draw(this.owner.worldMatrix, renderView.viewMatrix, renderView.projectionMatrix);
 
-        super.render(shader);
+        super.render(renderView);
     }
 }

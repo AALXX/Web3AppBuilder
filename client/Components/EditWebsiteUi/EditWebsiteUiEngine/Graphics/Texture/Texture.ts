@@ -31,8 +31,6 @@ export class Texture implements IMessageHandler {
 
         this._handle = gl.createTexture();
 
-        Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + this._name, this);
-
         this.bind();
 
         gl.texImage2D(gl.TEXTURE_2D, LEVEL, gl.RGBA, 1, 1, BORDER, gl.RGBA, gl.UNSIGNED_BYTE, TEMP_IMAGE_DATA);
@@ -40,6 +38,8 @@ export class Texture implements IMessageHandler {
         const asset = AssetManager.getAsset(this.name) as ImageAsset;
         if (asset !== undefined) {
             this.loadTextureFromAsset(asset);
+        } else {
+            Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + this._name, this);
         }
     }
 
@@ -75,7 +75,9 @@ export class Texture implements IMessageHandler {
      * destroy texture
      */
     public destroy(): void {
-        gl.deleteTexture(this._handle);
+        if (this._handle) {
+            gl.deleteTexture(this._handle);
+        }
     }
 
     /**

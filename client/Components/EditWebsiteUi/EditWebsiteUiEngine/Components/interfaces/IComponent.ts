@@ -1,15 +1,17 @@
-import { Shaders } from '../../GL/Shaders';
-import { SimObject } from '../../world/simObject';
+import { RenderView } from '../../Renderer/RenderView';
+import { EditorEntity } from '../../world/EditorEntity';
 
 export interface IComponent {
     name: string;
 
-    readonly owner: SimObject;
-    setOwner(owner: SimObject): void;
+    readonly owner: EditorEntity;
+    setOwner(owner: EditorEntity): void;
+
+    updateReady(): void;
 
     load(): void;
 
     update(time: number): void;
 
-    render(shader: Shaders): void;
+    render(renderView: RenderView): void;
 }

@@ -1,9 +1,10 @@
 import React, { useEffect, forwardRef } from 'react';
+import { Editor } from './Editor';
 import { UiDesignEngine } from './EditWebsiteUiEngine/Engine';
-import styles from './style/EditWebsite.module.css';
+// import styles from './style/EditWebsite.module.css';
 
 const GraphicsCanvas = forwardRef<HTMLCanvasElement>(function Link(prosp:any, ref:any) {
-    return (<canvas className={styles.Toolcanvas} ref={ref} width={prosp.Width}/>);
+    return (<canvas id="editorArea" ref={ref} width={prosp.Width}/>);
 });
 
 /**
@@ -11,11 +12,11 @@ const GraphicsCanvas = forwardRef<HTMLCanvasElement>(function Link(prosp:any, re
  * @return {JSX.Element}
 */
 export default function EditWebsiteUi() {
-    const engine = new UiDesignEngine.Engine();
+    const engine = new UiDesignEngine.Engine(1920, 1080);
     const CanvasRef = React.createRef<HTMLCanvasElement >();
 
     useEffect(() => {
-        engine.start(CanvasRef);
+        engine.start(new Editor(), CanvasRef);
 
         window.onresize = () =>{
             engine.resize();

@@ -10,4 +10,6 @@ router.get('/get-project/:projectToken', param('projectToken'), WebDesignToolSer
 
 router.post('/add-project/', body('ProjectName').not().isEmpty().trim(), WebDesignToolServ.AddProject);
 
+router.get('/get-image/', WebDesignToolServ.GetImage);
+
 export = router;

@@ -1,5 +1,3 @@
-import { gl } from '../GL/GLUtilities';
-import { Shaders } from '../GL/Shaders';
 import { AttributeInfo, GLBuffer } from '../GL/WebGlBuffer';
 import { Matrix4x4 } from '../Math/Matrix4x4';
 import { Vector3 } from '../Math/Vector3';
@@ -34,6 +32,7 @@ export class Sprite {
         this._height = height;
         this._materialName = materialName;
         this._material = MaterialManager.getMaterial(this._materialName);
+        console.log(this._materialName);
     }
 
     /**
@@ -63,10 +62,14 @@ export class Sprite {
      * Destroy Sprite
      */
     public destroy(): void {
-        this._buffer.destroy();
-        MaterialManager.releaseMaterial(this._materialName);
-        this._material = undefined;
-        this._materialName = undefined;
+        if (this._buffer) {
+            this._buffer.destroy();
+        }
+        if (this._material) {
+            MaterialManager.releaseMaterial(this._materialName);
+            this._material = undefined;
+            this._materialName = undefined;
+        }
     }
 
     /**
@@ -96,21 +99,12 @@ export class Sprite {
 
     /**
      * Draw Method
-     * @param {Shaders} shader
      * @param {Matrix4x4} model
+     * @param {Matrix4x4} view
+     * @param {Matrix4x4} projection
      */
-    public draw(shader: Shaders, model: Matrix4x4): void {
-        const modelLocation = shader.getUniformLocation('u_model');
-        gl.uniformMatrix4fv(modelLocation, false, model.toFloat32Array());
-
-        const colorLocation = shader.getUniformLocation('u_tint');
-        gl.uniform4fv(colorLocation, this._material.tint.toFloat32Array());
-
-        if (this._material.diffuseTexture !== undefined) {
-            this._material.diffuseTexture.activateAndBind(0);
-            const diffuseLocation = shader.getUniformLocation('u_diffuse');
-            gl.uniform1i(diffuseLocation, 0);
-        }
+    public draw(model: Matrix4x4, view: Matrix4x4, projection: Matrix4x4): void {
+        this._material.apply(model, view, projection);
 
         this._buffer.bind();
         this._buffer.draw();

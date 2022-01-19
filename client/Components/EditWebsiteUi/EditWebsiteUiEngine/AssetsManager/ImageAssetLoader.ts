@@ -1,6 +1,7 @@
 import { AssetManager } from './AssetsManager';
 import { IAsset } from './interfaces/IAsset';
 import { IAssetLoader } from './interfaces/IAssetloader';
+import { TargaProcessor } from './TargaProcessor';
 
 /**
  * Image Asset
@@ -14,7 +15,7 @@ export class ImageAsset implements IAsset {
      * @param {string} name
      * @param {HTMLElement} data
      */
-    constructor(name: string, data: HTMLImageElement) {
+    constructor(name: string, data: any) {
         this.name = name;
         this.data = data;
     }
@@ -50,9 +51,29 @@ export class ImageAssetLoader implements IAssetLoader {
      * @param {string} assetName
      */
     public loadAsset(assetName: string): void {
-        const image: HTMLImageElement = new Image();
-        image.onload = this.onImageLoaded.bind(this, assetName, image);
-        image.src = assetName;
+        const extension = assetName.substring(assetName.lastIndexOf('.') + 1, assetName.length) || assetName;
+
+        /* eslint-disable */
+
+        switch (extension.toLowerCase()) {
+            case 'tga':
+                // Special targa loading process.
+                console.log('Downloading targa file...');
+                const request: XMLHttpRequest = new XMLHttpRequest();
+                request.responseType = 'arraybuffer';
+                request.open('GET', assetName);
+                request.addEventListener('load', this.onTgaLoaded.bind(this, assetName, request));
+                request.send();
+                break;
+            default:
+                // Normal image loading process.
+                const image: HTMLImageElement = new Image();
+                image.onload = this.onImageLoaded.bind(this, assetName, image);
+                image.src = assetName;
+                image.crossOrigin = 'anonymous'
+                break;
+        }
+        /* eslint-enable */
     }
 
     /**
@@ -64,5 +85,23 @@ export class ImageAssetLoader implements IAssetLoader {
         console.log('onImageLoaded: assetName/image', assetName, image);
         const asset = new ImageAsset(assetName, image);
         AssetManager.onAssetLoaded(asset);
+    }
+
+    /**
+     * on targa file loaded
+     * @param {string} assetName
+     * @param {XMLHttpRequest} request
+     */
+    private onTgaLoaded(assetName: string, request: XMLHttpRequest): void {
+        console.log('onTgaLoaded: assetName/request', assetName);
+
+        if (request.readyState === request.DONE) {
+            const imageDataurl = TargaProcessor.loadToDataUrl(request.response);
+
+            // From the loaded data url, hook into the normal image loading method.
+            const image: HTMLImageElement = new Image();
+            image.onload = this.onImageLoaded.bind(this, assetName, image);
+            image.src = imageDataurl;
+        }
     }
 }

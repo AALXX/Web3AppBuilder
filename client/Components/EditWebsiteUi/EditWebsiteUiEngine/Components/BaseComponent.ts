@@ -1,5 +1,5 @@
-import { Shaders } from '../GL/Shaders';
-import { SimObject } from '../world/simObject';
+import { RenderView } from '../Renderer/RenderView';
+import { EditorEntity } from '../world/EditorEntity';
 import { IComponent } from './interfaces/IComponent';
 import { IComponentData } from './interfaces/IComponentData';
 
@@ -7,7 +7,7 @@ import { IComponentData } from './interfaces/IComponentData';
  * Base compoenent Class resposible with rendering/updating
  */
 export abstract class BaseComponent implements IComponent {
-    protected _owner: SimObject;
+    protected _owner: EditorEntity;
     protected _data: IComponentData;
 
     public name: string;
@@ -24,15 +24,15 @@ export abstract class BaseComponent implements IComponent {
     /**
      * get owner
      */
-    public get owner(): SimObject {
+    public get owner(): EditorEntity {
         return this._owner;
     }
 
     /**
      * set owner
-     * @param {SimObject} owner
+     * @param {EditorEntity} owner
      */
-    public setOwner(owner: SimObject): void {
+    public setOwner(owner: EditorEntity): void {
         this._owner = owner;
     }
 
@@ -42,6 +42,11 @@ export abstract class BaseComponent implements IComponent {
     public load(): void {}
 
     /**
+     * before update
+     */
+    public updateReady(): void {}
+
+    /**
      * update method
      * @param {number} time
      */
@@ -49,7 +54,7 @@ export abstract class BaseComponent implements IComponent {
 
     /**
      * render method
-     * @param {Shaders} shader
+     * @param {RenderView} renderView
      */
-    public render(shader: Shaders): void {}
+    public render(renderView: RenderView): void {}
 }

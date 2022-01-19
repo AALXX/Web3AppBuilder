@@ -1,6 +1,9 @@
 /**
  * Vector3 class
  */
+
+import { Vector3 } from './Vector3';
+
 /** Represents a 2-component vector. */
 export class Vector2 {
     private _x: number;
@@ -93,6 +96,29 @@ export class Vector2 {
     }
 
     /**
+     * transfrom vec2 to vec3
+     * @return {Vector3}
+     */
+    public toVector3(): Vector3 {
+        return new Vector3(this._x, this._y, 0);
+    }
+
+    /**
+     * set vector
+     * @param {number} x
+     * @param {number} y
+     */
+    public set(x?: number, y?: number): void {
+        if (x !== undefined) {
+            this._x = x;
+        }
+
+        if (y !== undefined) {
+            this._y = y;
+        }
+    }
+
+    /**
      * set data from json
      * @param {any} json
      */
@@ -150,6 +176,18 @@ export class Vector2 {
     public divide(vector: Vector2): Vector2 {
         this._x /= vector._x;
         this._y /= vector._y;
+
+        return this;
+    }
+
+    /**
+     * sclae the vector
+     * @param {number} scale
+     * @return {Vector2}
+     */
+    public scale(scale: number): Vector2 {
+        this._x *= scale;
+        this._x *= scale;
 
         return this;
     }

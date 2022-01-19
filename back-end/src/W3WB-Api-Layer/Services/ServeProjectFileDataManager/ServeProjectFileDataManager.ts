@@ -143,7 +143,14 @@ const ServeJsonProject = (req: Request, res: Response) => {
         });
 };
 
+const GetImage = (req: Request, res: Response) => {
+    // const imgStream = fs.createReadStream(`${__dirname}/assets/car.png`);
+    // return imgStream.pipe(res);
+    res.sendFile(`${__dirname}/assets/car.png`);
+};
+
 export default {
     ServeJsonProject,
     AddProject,
+    GetImage,
 };

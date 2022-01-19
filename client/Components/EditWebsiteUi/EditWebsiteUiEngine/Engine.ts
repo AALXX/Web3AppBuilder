@@ -2,83 +2,142 @@ import { RefObject } from 'react';
 import { AssetManager } from './AssetsManager/AssetsManager';
 import { BehaviorManager } from './Behaviors/BehaviorManager';
 import { KeyboardMovementBehaviorBuilder } from './Behaviors/keyboardMovementBehavior';
-import { CollisionManager } from './collision/collisionManager';
-import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { ComponentManager } from './Components/ComponentsManager';
 import { SpriteComponentBuilder } from './Components/spriteComponent';
-import { gl, GlUtilities } from './GL/GLUtilities';
-import { BasicShader } from './GL/shaders/basicShader';
-import { Color } from './Graphics/Material/Color';
-import { Material } from './Graphics/Material/Material';
+import { gl } from './GL/GLUtilities';
+// import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { MaterialManager } from './Graphics/Material/MaterialManager';
-import { InputManager, MouseContext } from './Input/InputManager';
-import { Matrix4x4 } from './Math/Matrix4x4';
+import { ShaderManager } from './Graphics/ShaderManager';
+import { IEditor } from './IEditor';
+import { InputManager } from './Input/InputManager';
 import { IMessageHandler } from './MessageManager/IMessageHandler';
 import { Message } from './MessageManager/Message';
 import { MessageBus } from './MessageManager/MessageBus';
+import { Renderer } from './Renderer/Renderer';
+import { RendererViewportCreateInfo, ViewportProjectionType } from './Renderer/RendererViewport';
 import { LevelManager } from './world/LevelManager';
 export namespace UiDesignEngine {
     /**
      ** Engine Class
      */
     export class Engine implements IMessageHandler {
-        private _canvas: RefObject<HTMLCanvasElement>;
-        private _basicShader: BasicShader;
-        private _projection: Matrix4x4;
         private _previousTime: number = 0;
+        private _editorWidth: number;
+        private _editorHeight: number;
 
+        private _isFirstUpdate: boolean = true;
+
+        private _renderer: Renderer;
+        private _editor: IEditor;
         /**
-         ** Class Constructor
+         * Class Constructor
+         * @param {number} width
+         * @param {number} height
          */
-        public constructor() {}
+        public constructor(width?: number, height?: number) {
+            this._editorWidth = width;
+            this._editorHeight = height;
+        }
 
         /**
          * Resize Method
          */
         public resize(): void {
-            this._canvas.current.width = window.innerWidth;
-            this._canvas.current.height = window.innerHeight;
-            gl.viewport(0, 0, this._canvas.current.width, this._canvas.current.height);
-            this._projection = Matrix4x4.orthographic(0, this._canvas.current.width, this._canvas.current.height, 0, -100.0, 100.0);
+            if (this._renderer) {
+                this._renderer.onResize();
+            }
         }
 
         /**
          * Start Method
+         * @param {IEditor} editor
          * @param {RefObject<HTMLCanvasElement>} canvasRef
+         * @param {string} elementName
          */
-        public start(canvasRef: RefObject<HTMLCanvasElement>): void {
-            this._canvas = canvasRef;
-            GlUtilities.initialize(this._canvas);
+        public start(editor: IEditor, canvasRef: RefObject<HTMLCanvasElement>, elementName?: string): void {
+            this._editor = editor;
+
+            const rendererViewportCreateInfo: RendererViewportCreateInfo = new RendererViewportCreateInfo();
+            rendererViewportCreateInfo.elementId = elementName;
+            rendererViewportCreateInfo.projectionType = ViewportProjectionType.ORTHOGRAPHIC;
+            rendererViewportCreateInfo.width = this._editorWidth;
+            rendererViewportCreateInfo.height = this._editorHeight;
+            rendererViewportCreateInfo.nearClip = 0.1;
+            rendererViewportCreateInfo.farClip = 1000.0;
+            rendererViewportCreateInfo.x = 0;
+            rendererViewportCreateInfo.y = 0;
+
+            this._renderer = new Renderer(rendererViewportCreateInfo, canvasRef);
+
+            console.debug(`GL_VERSION:               ${gl.getParameter(gl.VERSION)}`);
+            console.debug(`GL_VENDOR:                ${gl.getParameter(gl.VENDOR)}`);
+            console.debug(`GL_RENDERER:              ${gl.getParameter(gl.RENDERER)}`);
+            console.debug(`SHADING_LANGUAGE_VERSION: ${gl.getParameter(gl.SHADING_LANGUAGE_VERSION)}`);
+
+            // Attempt to load additional information.
+            const debugRendererExtension = gl.getExtension('WEBGL_debug_renderer_info');
+            if (debugRendererExtension !== undefined && debugRendererExtension !== null) {
+                console.debug(`UNMASKED_VENDOR_WEBGL:    ${gl.getParameter(debugRendererExtension.UNMASKED_VENDOR_WEBGL)}`);
+                console.debug(`UNMASKED_RENDERER_WEBGL:  ${gl.getParameter(debugRendererExtension.UNMASKED_RENDERER_WEBGL)}`);
+            }
+
+            // Initialize various sub-systems.
             AssetManager.initialize();
-            InputManager.initialize();
+            ShaderManager.initialize();
+            InputManager.initialize(this._renderer.windowViewportCanvas);
 
-            LevelManager.initialize();
+            // Load fonts
+            // BitmapFontManager.load();
 
-            //* register component builder
+            /**
+             * component buider
+             */
             ComponentManager.registerBuilder(new SpriteComponentBuilder());
 
-            ComponentManager.registerBuilder(new CollisionComponentBuilder());
-
+            /**
+             * behavior builder
+             */
             BehaviorManager.registerBuilder(new KeyboardMovementBehaviorBuilder());
 
-            //* register Mterials
-            MaterialManager.registerMaterial(new Material('wood', '../assets/texure.jpg', new Color(255, 255, 255, 255)));
-            MaterialManager.registerMaterial(new Material('carMat', '../assets/car.png', new Color(255, 255, 255, 255)));
+            // Load level config
+            LevelManager.load();
 
-            gl.clearColor(0.5, 0.5, 0.5, 1);
-            gl.enable(gl.BLEND);
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            // Load material configs
+            MaterialManager.load();
 
-            this._basicShader = new BasicShader();
-            this._basicShader.useShader();
-
-            //* Load
-            this._projection = Matrix4x4.orthographic(0, this._canvas.current.width, this._canvas.current.height, 0, -100.0, 100.0);
-
-            // TODO: change to be read from a game config file later
-            LevelManager.changeLevel(0);
-
+            // Trigger a resize to make sure the viewport is corrent.
             this.resize();
+
+            // Begin the preloading phase, which waits for various thing to be loaded before starting the game.
+            this.preloading();
+        }
+
+        /**
+         * before loadeing method
+         */
+        private preloading(): void {
+            // Make sure to always update the message bus.
+            MessageBus.update(0);
+
+            // if (!BitmapFontManager.isLoaded) {
+            //     requestAnimationFrame(this.preloading.bind(this));
+            //     return;
+            // }
+
+            if (!MaterialManager.isLoaded) {
+                requestAnimationFrame(this.preloading.bind(this));
+                return;
+            }
+
+            if (!LevelManager.isLoaded) {
+                requestAnimationFrame(this.preloading.bind(this));
+                return;
+            }
+
+            // Perform items such as loading the first/initial level, etc.
+            this._editor.updateReady();
+
+            // Kick off the render loop.
             this.loop();
         }
 
@@ -86,47 +145,46 @@ export namespace UiDesignEngine {
          * on message recived
          * @param {Message} message
          */
-        public onMessage(message: Message): void {
-            if (message.code === 'MOUSE_UP') {
-                const context = message.context as MouseContext;
-                console.log(`Pos: [${context.position.x},${context.position.y}]`);
+        public onMessage(message: Message): void {}
+
+        /**
+         * main game loop
+         */
+        private loop(): void {
+            if (this._isFirstUpdate) {
             }
-        }
 
-        /**
-         * Loop Method
-         */
-        public loop(): void {
-            this.update();
-            this.render();
-        }
-
-        /**
-         * Update Method
-         */
-        public update(): void {
             const delta = performance.now() - this._previousTime;
 
-            MessageBus.update(delta);
-            LevelManager.update(delta);
-            CollisionManager.update(delta);
+            this.update(delta);
+            this.render(delta);
 
             this._previousTime = performance.now();
+
+            requestAnimationFrame(this.loop.bind(this));
+        }
+        /**
+         * Update Method
+         * @param {number} delta
+         */
+        private update(delta: number): void {
+            MessageBus.update(delta);
+            if (LevelManager.isLoaded && LevelManager.activeLevel !== undefined && LevelManager.activeLevel.isLoaded) {
+                LevelManager.activeLevel.update(delta);
+            }
+            // CollisionManager.update( delta );
+
+            this._editor.update(delta);
         }
 
         /**
          * Render method
+         * @param {number} delta
          */
-        public render(): void {
-            gl.clear(gl.COLOR_BUFFER_BIT);
+        private render(delta: number): void {
+            this._renderer.beginRender(delta, this._editor);
 
-            LevelManager.render(this._basicShader);
-
-            const projectionPosition = this._basicShader.getUniformLocation('u_projection');
-            gl.uniformMatrix4fv(projectionPosition, false, new Float32Array(this._projection.data));
-
-            //* Call this instance update
-            requestAnimationFrame(this.loop.bind(this));
+            this._renderer.endRender();
         }
     }
 }

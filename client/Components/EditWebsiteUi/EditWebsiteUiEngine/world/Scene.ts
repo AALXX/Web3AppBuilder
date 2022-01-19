@@ -1,17 +1,17 @@
-﻿import { SimObject } from './simObject';
+﻿import { EditorEntity } from './EditorEntity';
 import { Shaders } from '../GL/Shaders';
 
 /**
  * Scene class
  */
 export class Scene {
-    private _root: SimObject;
+    private _root: EditorEntity;
 
     public constructor() {
-        this._root = new SimObject(0, '__ROOT__', this);
+        this._root = new EditorEntity(0, '__ROOT__', this);
     }
 
-    public get root(): SimObject {
+    public get root(): EditorEntity {
         return this._root;
     }
 
@@ -19,11 +19,11 @@ export class Scene {
         return this._root.isLoaded;
     }
 
-    public addObject(object: SimObject): void {
+    public addObject(object: EditorEntity): void {
         this._root.addChild(object);
     }
 
-    public getObjectByName(name: string): SimObject {
+    public getObjectByName(name: string): EditorEntity {
         return this._root.getObjectByName(name);
     }
 
