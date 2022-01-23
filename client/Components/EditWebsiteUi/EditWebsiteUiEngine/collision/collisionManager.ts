@@ -1,4 +1,5 @@
 import { CollisionComponent } from '../Components/collisionComponent';
+import { InputManager } from '../Input/InputManager';
 import { Message } from '../MessageManager/Message';
 
 /**
@@ -105,6 +106,10 @@ export class CollisionManager {
                         this._collisionData.push(col);
                     }
                 }
+            }
+
+            if (comp.shape.isMouseHovering(InputManager.getMousePosition())) {
+                console.log('CUm');
             }
         }
 

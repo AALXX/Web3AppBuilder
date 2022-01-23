@@ -19,6 +19,13 @@ export interface IShape2D {
     intersects(other: IShape2D): boolean;
 
     /**
+     * check if mouse is hovering overshape
+     * @param {Vector2} mousePos
+     * @return {Vector2}
+     */
+    isMouseHovering(mousePos: Vector2): boolean;
+
+    /**
      * check if the provide point is in shape
      * @param {Vector2} point
      */

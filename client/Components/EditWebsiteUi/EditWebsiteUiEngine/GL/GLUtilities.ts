@@ -14,7 +14,7 @@ export class GlUtilities {
             throw new Error('no canvas element is null');
         }
 
-        gl = canvasRef.current.getContext('webgl');
+        gl = canvasRef.current.getContext('webgl2');
 
         if (gl === undefined || gl === null) {
             throw new Error('unable to initialize WebGL');

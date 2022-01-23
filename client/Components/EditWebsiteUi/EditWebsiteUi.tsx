@@ -12,7 +12,7 @@ const GraphicsCanvas = forwardRef<HTMLCanvasElement>(function Link(prosp:any, re
  * @return {JSX.Element}
 */
 export default function EditWebsiteUi() {
-    const engine = new UiDesignEngine.Engine(1920, 1080);
+    const engine = new UiDesignEngine.Engine();
     const CanvasRef = React.createRef<HTMLCanvasElement >();
 
     useEffect(() => {

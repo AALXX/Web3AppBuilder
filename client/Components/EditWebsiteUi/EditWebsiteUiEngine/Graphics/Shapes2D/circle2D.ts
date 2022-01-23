@@ -6,6 +6,9 @@ import { Rectangle2D } from './rectangle2d';
  * class cirlce2D
  */
 export class Circle2D implements IShape2D {
+    isMouseHovering(mousePos: Vector2): boolean {
+        throw new Error('Method not implemented.');
+    }
     public position: Vector2 = Vector2.zero;
 
     public origin: Vector2 = Vector2.zero;

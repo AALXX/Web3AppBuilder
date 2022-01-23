@@ -1,157 +1,172 @@
-// import { CollisionManager } from '../collision/collisionManager';
-// import { Shaders } from '../GL/Shaders';
-// import { Circle2D } from '../Graphics/Shapes2D/circle2D';
-// import { IShape2D } from '../Graphics/Shapes2D/IShape2D';
-// import { Rectangle2D } from '../Graphics/Shapes2D/rectangle2d';
-// import { BaseComponent } from './BaseComponent';
-// import { IComponent } from './interfaces/IComponent';
-// import { IComponentBuilder } from './interfaces/IComponentBuilder';
-// import { IComponentData } from './interfaces/IComponentData';
+import { CollisionManager } from '../collision/collisionManager';
+import { Circle2D } from '../Graphics/Shapes2D/circle2D';
+import { IShape2D } from '../Graphics/Shapes2D/IShape2D';
+import { Rectangle2D } from '../Graphics/Shapes2D/rectangle2d';
+import { RenderView } from '../Renderer/RenderView';
+import { BaseComponent } from './BaseComponent';
+import { IComponent } from './interfaces/IComponent';
+import { IComponentBuilder } from './interfaces/IComponentBuilder';
+import { IComponentData } from './interfaces/IComponentData';
 
-// /**
-//  * Collision component
-//  */
-// export class CollisionComponentData implements IComponentData {
-//     public name: string;
-//     public shape: IShape2D;
+/**
+ * collison component data
+ */
+export class CollisionComponentData implements IComponentData {
+    public name: string;
+    public shape: IShape2D;
+    public static: boolean = true;
 
-//     /**
-//      * set data from json
-//      * @param {any} json
-//      */
-//     public setFromJson(json: any): void {
-//         if (json.name !== undefined) {
-//             this.name = String(json.name);
-//         }
+    /**
+     * set data from provided json
+     * @param {any} json
+     */
+    public setFromJson(json: any): void {
+        if (json.name !== undefined) {
+            this.name = String(json.name);
+        }
 
-//         if (json.shape === undefined) {
-//             throw new Error('CollisionComponentData requires shape to be present.');
-//         } else {
-//             if (json.shape.type === undefined) {
-//                 throw new Error('CollisionComponentData requires shape.type to be present.');
-//             }
+        if (json.static !== undefined) {
+            this.static = Boolean(json.static);
+        }
 
-//             const shapeType: string = String(json.shape.type).toLowerCase();
-//             /* eslint-disable */
+        if (json.shape === undefined) {
+            throw new Error('CollisionComponentData requires shape to be present.');
+        } else {
+            if (json.shape.type === undefined) {
+                throw new Error('CollisionComponentData requires shape.type to be present.');
+            }
 
-//             switch (shapeType) {
-//                 case 'rectangle':
-//                     this.shape = new Rectangle2D();
-//                     break;
-//                 case 'circle':
-//                     this.shape = new Circle2D();
-//                     break;
-//                 default:
-//                     throw new Error("Unsupported shape type: '" + shapeType + "'.");
-//             }
-//             /* eslint-enable */
+            const shapeType: string = String(json.shape.type).toLowerCase();
+            /* eslint-disable */
 
-//             this.shape.setFromJson(json.shape);
-//         }
-//     }
-// }
+            switch (shapeType) {
+                case 'rectangle':
+                    this.shape = new Rectangle2D();
+                    break;
+                case 'circle':
+                    this.shape = new Circle2D();
+                    break;
+                default:
+                    throw new Error("Unsupported shape type: '" + shapeType + "'.");
+            }
+            /* eslint-enable */
 
-// /**
-//  * colision buffer component
-//  */
-// export class CollisionComponentBuilder implements IComponentBuilder {
-//     /**
-//      * get type
-//      */
-//     public get type(): string {
-//         return 'collision';
-//     }
+            this.shape.setFromJson(json.shape);
+        }
+    }
+}
 
-//     /**
-//      * build component from json
-//      * @param {any} json
-//      * @return {IComponent}
-//      */
-//     public buildFromJson(json: any): IComponent {
-//         const data = new CollisionComponentData();
-//         data.setFromJson(json);
-//         return new CollisionComponent(data);
-//     }
-// }
+/**
+ * collison comopnent build
+ */
+export class CollisionComponentBuilder implements IComponentBuilder {
+    /**
+     * get component type
+     */
+    public get type(): string {
+        return 'collision';
+    }
 
-// /**
-//  * CollisionComponent class
-//  */
-// export class CollisionComponent extends BaseComponent {
-//     private _shape: IShape2D;
+    /**
+     * build  from provided json
+     * @param {any} json
+     * @return {IComponent}
+     */
+    public buildFromJson(json: any): IComponent {
+        const data = new CollisionComponentData();
+        data.setFromJson(json);
+        return new CollisionComponent(data);
+    }
+}
 
-//     /**
-//      * class constructor
-//      * @param {CollisionComponent} data
-//      */
-//     public constructor(data: CollisionComponentData) {
-//         super(data);
+/**
+ * A collision component. Likely to be removed when collision system is replaced.
+ */
+export class CollisionComponent extends BaseComponent {
+    private _shape: IShape2D;
+    private _static: boolean;
 
-//         this._shape = data.shape;
-//     }
+    /**
+     * constructor
+     * @param {CollisionComponentData} data
+     */
+    public constructor(data: CollisionComponentData) {
+        super(data);
 
-//     /**
-//      * get shape
-//      */
-//     public get shape(): IShape2D {
-//         return this._shape;
-//     }
+        this._shape = data.shape;
+        this._static = data.static;
+    }
 
-//     /**
-//      * load method
-//      */
-//     public load(): void {
-//         super.load();
+    /**
+     * get collison shape
+     */
+    public get shape(): IShape2D {
+        return this._shape;
+    }
 
-//         // TODO: need to get world position for nested objects.
-//         this._shape.position.copyFrom(this.owner.transform.position.toVector2().add(this._shape.offset));
+    /**
+     * is static
+     */
+    public get isStatic(): boolean {
+        return this._static;
+    }
 
-//         // Tell the collision manager that we exist.
-//         CollisionManager.registerCollisionComponent(this);
-//     }
+    /**
+     * load method
+     */
+    public load(): void {
+        super.load();
 
-//     /**
-//      * update method
-//      * @param {number} time
-//      */
-//     public update(time: number): void {
-//         // TODO: need to get world position for nested objects.
-//         this._shape.position.copyFrom(this.owner.transform.position.toVector2().add(this._shape.offset));
+        // TODO: need to get world position for nested objects.
+        this._shape.position.copyFrom(this.owner.getWorldPosition().toVector2().add(this._shape.offset));
 
-//         super.update(time);
-//     }
+        // Tell the collision manager that we exist.
+        CollisionManager.registerCollisionComponent(this);
+    }
 
-//     /**
-//      * render method
-//      * @param {Shaders} shader
-//      */
-//     public render(shader: Shaders): void {
-//         // this._sprite.draw( shader, this.owner.worldMatrix );
+    /**
+     * update
+     * @param {number} time
+     */
+    public update(time: number): void {
+        // TODO: need to get world position for nested objects.
+        this._shape.position.copyFrom(this.owner.getWorldPosition().toVector2().add(this._shape.offset));
+        // console.log(this._shape.position);
+        super.update(time);
+    }
 
-//         super.render(shader);
-//     }
+    /**
+     * render
+     * @param {RenderView} renderView
+     */
+    public render(renderView: RenderView): void {
+        // this._sprite.draw( shader, this.owner.worldMatrix );
 
-//     /**
-//      * on collision begins
-//      * @param {CollisionComponent} other
-//      */
-//     public onCollisionEntry(other: CollisionComponent): void {
-//         console.log('onCollisionEntry:', this, other);
-//     }
+        super.render(renderView);
+    }
 
-//     /**
-//      * on collision update
-//      * @param {CollisionComponent} other
-//      */
-//     public onCollisionUpdate(other: CollisionComponent): void {
-//         console.log('onCollisionUpdate:', this, other);
-//     }
+    /**
+     * on collision entry
+     * @param {CollisionComponent} other
+     */
+    public onCollisionEntry(other: CollisionComponent): void {
+        console.log('onCollisionEntry:', this, other);
+    }
 
-//     /**
-//      * on collision exit
-//      * @param {CollisionComponent} other
-//      */
-//     public onCollisionExit(other: CollisionComponent): void {
-//         console.log('onCollisionExit:', this, other);
-//     }
-// }
+    /**
+     * on collision update
+     * @param {CollisionComponent} other
+     */
+    public onCollisionUpdate(other: CollisionComponent): void {
+        // console.log( "onCollisionUpdate:", this, other );
+    }
+
+    /**
+     * on collision exit
+     * @param {CollisionComponent} other
+     */
+    public onCollisionExit(other: CollisionComponent): void {
+        console.log('onCollisionExit:', this, other);
+    }
+}
+

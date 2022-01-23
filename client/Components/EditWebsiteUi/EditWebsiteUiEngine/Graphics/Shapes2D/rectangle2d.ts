@@ -103,6 +103,16 @@ export class Rectangle2D implements IShape2D {
     }
 
     /**
+     * check if mouse is hovering overshape
+     * @param {Vector2} mousePos
+     * @return {Vector2}
+     */
+    public isMouseHovering(mousePos: Vector2): boolean {
+        const a = this.getExtents(this);
+        return a.position.x <= mousePos.x && a.width >= mousePos.x && a.position.y <= mousePos.y && a.height >= mousePos.y;
+    }
+
+    /**
      * get shape extents
      * @param {Rectangle2D} shape
      * @return {Rectangle2D}

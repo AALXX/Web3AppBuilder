@@ -2,6 +2,9 @@ import { RefObject } from 'react';
 import { AssetManager } from './AssetsManager/AssetsManager';
 import { BehaviorManager } from './Behaviors/BehaviorManager';
 import { KeyboardMovementBehaviorBuilder } from './Behaviors/keyboardMovementBehavior';
+import { MoveComponentBehaviorBuilder } from './Behaviors/MoveComponentBehavior';
+import { CollisionManager } from './collision/collisionManager';
+import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { ComponentManager } from './Components/ComponentsManager';
 import { SpriteComponentBuilder } from './Components/spriteComponent';
 import { gl } from './GL/GLUtilities';
@@ -69,10 +72,10 @@ export namespace UiDesignEngine {
 
             this._renderer = new Renderer(rendererViewportCreateInfo, canvasRef);
 
-            console.debug(`GL_VERSION:               ${gl.getParameter(gl.VERSION)}`);
-            console.debug(`GL_VENDOR:                ${gl.getParameter(gl.VENDOR)}`);
-            console.debug(`GL_RENDERER:              ${gl.getParameter(gl.RENDERER)}`);
-            console.debug(`SHADING_LANGUAGE_VERSION: ${gl.getParameter(gl.SHADING_LANGUAGE_VERSION)}`);
+            console.log(`GL_VERSION:               ${gl.getParameter(gl.VERSION)}`);
+            console.log(`GL_VENDOR:                ${gl.getParameter(gl.VENDOR)}`);
+            console.log(`GL_RENDERER:              ${gl.getParameter(gl.RENDERER)}`);
+            console.log(`SHADING_LANGUAGE_VERSION: ${gl.getParameter(gl.SHADING_LANGUAGE_VERSION)}`);
 
             // Attempt to load additional information.
             const debugRendererExtension = gl.getExtension('WEBGL_debug_renderer_info');
@@ -94,10 +97,13 @@ export namespace UiDesignEngine {
              */
             ComponentManager.registerBuilder(new SpriteComponentBuilder());
 
+            ComponentManager.registerBuilder( new CollisionComponentBuilder() );
+
             /**
              * behavior builder
              */
             BehaviorManager.registerBuilder(new KeyboardMovementBehaviorBuilder());
+            BehaviorManager.registerBuilder(new MoveComponentBehaviorBuilder());
 
             // Load level config
             LevelManager.load();
@@ -169,6 +175,7 @@ export namespace UiDesignEngine {
          */
         private update(delta: number): void {
             MessageBus.update(delta);
+            CollisionManager.update(delta);
             if (LevelManager.isLoaded && LevelManager.activeLevel !== undefined && LevelManager.activeLevel.isLoaded) {
                 LevelManager.activeLevel.update(delta);
             }
