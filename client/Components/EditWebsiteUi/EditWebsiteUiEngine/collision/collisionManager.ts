@@ -109,7 +109,11 @@ export class CollisionManager {
             }
 
             if (comp.shape.isMouseHovering(InputManager.getMousePosition())) {
-                console.log('CUm');
+                comp.onHover();
+                Message.sendPriority(`MOUSE_HOVER: ${comp.name}`, this);
+            } else {
+                comp.onHoverExit();
+                Message.sendPriority(`MOUSE_HOVER_EXIT: ${comp.name}`, this);
             }
         }
 

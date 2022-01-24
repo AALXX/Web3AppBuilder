@@ -11,6 +11,7 @@ import { IBehaviorData } from './interfaces/IBehaviorData';
  */
 export class MoveComponentBehaviorData implements IBehaviorData {
     public name: string;
+    public ownerName: string;
 
     /**
      * set from json
@@ -22,6 +23,12 @@ export class MoveComponentBehaviorData implements IBehaviorData {
         }
 
         this.name = String(json.name);
+
+        if (json.ownerName === undefined) {
+            throw new Error('Owner_Name must be defined in behavior data.');
+        }
+
+        this.ownerName = String(json.ownerName);
     }
 }
 
@@ -52,6 +59,9 @@ export class MoveComponentBehaviorBuilder implements IBehaviorBuilder {
  * KeyboardMovementBehavior class
  */
 export class KeyboardMovementBehavior extends BaseBehavior implements IMessageHandler {
+    private _isHolding: boolean = false;
+    private _isHovering: boolean = false;
+
     /**
      * class constructor
      * @param {KeyboardMovementBehaviorData} data
@@ -61,8 +71,10 @@ export class KeyboardMovementBehavior extends BaseBehavior implements IMessageHa
 
         Message.subscribe('MOUSE_DOWN', this);
         Message.subscribe('MOUSE_UP', this);
+        Message.subscribe(`MOUSE_HOVER: ${data.ownerName}`, this);
+        Message.subscribe(`MOUSE_HOVER_EXIT: ${data.ownerName}`, this);
+        // console.log(data.ownerName);
     }
-    private _isHolding: boolean = false;
 
     /**
      * update Method
@@ -73,10 +85,13 @@ export class KeyboardMovementBehavior extends BaseBehavior implements IMessageHa
             // this._owner.transform.position.y += this.speed;
         }
 
-        if (this._isHolding) {
+        if (this._isHolding && this._isHovering) {
             this._owner.transform.position.x = InputManager.getMousePosition().x;
             this._owner.transform.position.y = InputManager.getMousePosition().y;
         }
+
+        // console.log(this._owner.name);
+        // console.log(this._isHovering);
 
         super.update(time);
     }
@@ -96,9 +111,14 @@ export class KeyboardMovementBehavior extends BaseBehavior implements IMessageHa
                 break;
 
             case 'MOUSE_UP':
-                console.log(this._owner.transform.position);
                 this._isHolding = false;
 
+                break;
+            case `MOUSE_HOVER: ${this._owner.name}`:
+                this._isHovering = true;
+                break;
+            case `MOUSE_HOVER_EXIT: ${this._owner.name}`:
+                this._isHovering = false;
                 break;
         }
         /* eslint-enable */

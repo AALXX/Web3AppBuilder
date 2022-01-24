@@ -2,6 +2,7 @@ import { CollisionManager } from '../collision/collisionManager';
 import { Circle2D } from '../Graphics/Shapes2D/circle2D';
 import { IShape2D } from '../Graphics/Shapes2D/IShape2D';
 import { Rectangle2D } from '../Graphics/Shapes2D/rectangle2d';
+import { Message } from '../MessageManager/Message';
 import { RenderView } from '../Renderer/RenderView';
 import { BaseComponent } from './BaseComponent';
 import { IComponent } from './interfaces/IComponent';
@@ -131,7 +132,6 @@ export class CollisionComponent extends BaseComponent {
     public update(time: number): void {
         // TODO: need to get world position for nested objects.
         this._shape.position.copyFrom(this.owner.getWorldPosition().toVector2().add(this._shape.offset));
-        // console.log(this._shape.position);
         super.update(time);
     }
 
@@ -158,7 +158,7 @@ export class CollisionComponent extends BaseComponent {
      * @param {CollisionComponent} other
      */
     public onCollisionUpdate(other: CollisionComponent): void {
-        // console.log( "onCollisionUpdate:", this, other );
+        console.log('onCollisionUpdate:', this, other);
     }
 
     /**
@@ -168,5 +168,20 @@ export class CollisionComponent extends BaseComponent {
     public onCollisionExit(other: CollisionComponent): void {
         console.log('onCollisionExit:', this, other);
     }
-}
 
+    /**
+     * on hover over object
+     */
+    public onHover(): void {
+        // console.log('onCollisionExit:', this);
+        Message.send(`MOUSE_HOVER: ${this.owner.name}`, this);
+    }
+
+    /**
+     * on hover over object
+     */
+    public onHoverExit(): void {
+        // console.log('onCollisionExit:', this);
+        Message.send(`MOUSE_HOVER_EXIT: ${this.owner.name}`, this);
+    }
+}

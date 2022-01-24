@@ -97,7 +97,7 @@ export namespace UiDesignEngine {
              */
             ComponentManager.registerBuilder(new SpriteComponentBuilder());
 
-            ComponentManager.registerBuilder( new CollisionComponentBuilder() );
+            ComponentManager.registerBuilder(new CollisionComponentBuilder());
 
             /**
              * behavior builder
@@ -175,12 +175,11 @@ export namespace UiDesignEngine {
          */
         private update(delta: number): void {
             MessageBus.update(delta);
-            CollisionManager.update(delta);
             if (LevelManager.isLoaded && LevelManager.activeLevel !== undefined && LevelManager.activeLevel.isLoaded) {
                 LevelManager.activeLevel.update(delta);
             }
-            // CollisionManager.update( delta );
 
+            CollisionManager.update(delta);
             this._editor.update(delta);
         }
 
