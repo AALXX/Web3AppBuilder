@@ -32,7 +32,6 @@ export class Sprite {
         this._height = height;
         this._materialName = materialName;
         this._material = MaterialManager.getMaterial(this._materialName);
-        console.log(this._materialName);
     }
 
     /**
@@ -104,8 +103,8 @@ export class Sprite {
      * @param {Matrix4x4} projection
      */
     public draw(model: Matrix4x4, view: Matrix4x4, projection: Matrix4x4): void {
+        // console.log(this._material);
         this._material.apply(model, view, projection);
-
         this._buffer.bind();
         this._buffer.draw();
     }

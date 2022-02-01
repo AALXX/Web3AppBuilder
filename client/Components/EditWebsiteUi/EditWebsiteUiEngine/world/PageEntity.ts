@@ -1,24 +1,21 @@
-﻿import { IBehavior } from '../Behaviors/interfaces/IBehavior';
-import { IComponent } from '../Components/interfaces/IComponent';
 import { IPage } from '../document_page/interfaces/IPage';
 import { Matrix4x4 } from '../Math/Matrix4x4';
 import { Transform } from '../Math/Transform';
 import { Vector3 } from '../Math/Vector3';
 import { TObject } from '../Objects/TObject';
 import { RenderView } from '../Renderer/RenderView';
+import { EditorEntity } from './EditorEntity';
 import { SceneGraph } from './SceneGraph';
 
 /**
  * Null object in the world responable for world state
  */
-export class EditorEntity extends TObject {
-    private _children: EditorEntity[] = [];
-    private _parent: EditorEntity;
+export class PageEntity extends TObject {
+    private _children: (EditorEntity | PageEntity)[] = [];
+    private _parent: EditorEntity | PageEntity;
     private _isLoaded: boolean = false;
     private _sceneGraph: SceneGraph;
-    private _components: IComponent[] = [];
-    private _pageConfig: IPage[] = [];
-    private _behaviors: IBehavior[] = [];
+    private _config: IPage[] = [];
     private _isVisible: boolean = true;
 
     private _localMatrix: Matrix4x4 = Matrix4x4.identity();
@@ -33,7 +30,7 @@ export class EditorEntity extends TObject {
     /**
      * Creates a new entity.
      * @param {strimng} name The name of this entity.
-     * @param {EditorEntity} sceneGraph The scenegraph to which this entity belongs.
+     * @param {PageEntity} sceneGraph The scenegraph to which this entity belongs.
      */
     public constructor(name: string, sceneGraph?: SceneGraph) {
         super();
@@ -42,15 +39,15 @@ export class EditorEntity extends TObject {
     }
 
     /** Returns the parent of this entity. */
-    public get parent(): EditorEntity {
+    public get parent(): EditorEntity | PageEntity {
         return this._parent;
     }
 
     /**
      * set parent for entity
-     * @param {EditorEntity} newParent
+     * @param {EditorEntity | PageEntity} newParent
      */
-    public set parent(newParent: EditorEntity) {
+    public set parent(newParent: EditorEntity | PageEntity) {
         this._parent = newParent;
     }
 
@@ -80,8 +77,8 @@ export class EditorEntity extends TObject {
      * Adds the provided entity as a child of this one.
      * @param {EditorEntity} child The child to be added.
      */
-    public addChild(child: EditorEntity): void {
-        child._parent = this;
+    public addChild(child: EditorEntity | PageEntity): void {
+        child.parent = this;
         this._children.push(child);
         child.onAdded(this._sceneGraph);
     }
@@ -94,129 +91,58 @@ export class EditorEntity extends TObject {
     public removeChild(child: EditorEntity): void {
         const index = this._children.indexOf(child);
         if (index !== -1) {
-            child._parent = undefined;
+            child.parent = undefined;
             this._children.splice(index, 1);
         }
     }
 
     /**
-     * Recursively attempts to retrieve a component with the given name from this entity or its children.
-     * @param {String} name The name of the component to retrieve.
-     * @return {IComponent}
-     */
-    public getComponentByName(name: string): IComponent {
-        for (const component of this._components) {
-            if (component.name === name) {
-                return component;
-            }
-        }
-
-        for (const child of this._children) {
-            const component = child.getComponentByName(name);
-            if (component !== undefined) {
-                return component;
-            }
-        }
-
-        return undefined;
-    }
-
-    /**
-     * Recursively attempts to retrieve a behavior with the given name from this entity or its children.
-     * @param {strng} name The name of the behavior to retrieve.
-     * @return {IBehavior}
-     */
-    public getBehaviorByName(name: string): IBehavior {
-        for (const behavior of this._behaviors) {
-            if (behavior.name === name) {
-                return behavior;
-            }
-        }
-
-        for (const child of this._children) {
-            const behavior = child.getBehaviorByName(name);
-            if (behavior !== undefined) {
-                return behavior;
-            }
-        }
-
-        return undefined;
-    }
-
-    /**
      * Recursively attempts to retrieve a child entity with the given name from this entity or its children.
      * @param {string} name The name of the entity to retrieve.
-     * @return {EditorEntity}
+     * @return {PageEntity}
      */
-    public getEntityByName(name: string): EditorEntity {
-        if (this.name === name) {
-            return this;
-        }
+    // public getPageByName(name: string): PageEntity {
+    //     if (this.name === name) {
+    //         return this;
+    //     }
 
-        for (const child of this._children) {
-            const result = child.getEntityByName(name);
-            if (result !== undefined) {
-                return result;
-            }
-        }
+    //     for (const child of this._children) {
+    //         const result = child.getPageByName(name);
+    //         if (result !== undefined) {
+    //             return result;
+    //         }
+    //     }
 
-        return undefined;
-    }
-
-    /**
-     * Adds the given component to this entity.
-     * @param {IComponent} component The component to be added.
-     */
-    public addComponent(component: IComponent): void {
-        this._components.push(component);
-        component.setOwner(this);
-    }
-
-    /**
-     * Adds the given behavior to this entity.
-     * @param {IBehavior} behavior The behavior to be added.
-     */
-    public addBehavior(behavior: IBehavior): void {
-        this._behaviors.push(behavior);
-        behavior.setOwner(this);
-    }
-
-    /**
-     * Adds the given behavior to this entity.
-     * @param {config} config The behavior to be added.
-     */
-    public addconfig(config: IPage): void {
-        this._pageConfig.push(config);
-        config.setOwner(this);
-    }
+    //     return undefined;
+    // }
 
     /** Performs loading procedures on this entity. */
     public load(): void {
         this._isLoaded = true;
+        console.log('cum');
+        // console.log(this._config);
 
-        for (const p of this._pageConfig) {
-            p.load();
-        }
-
-        for (const c of this._components) {
-            c.load();
-        }
+        // for (const c of this._config) {
+        //     c.load();
+        // }
 
         for (const c of this._children) {
             c.load();
         }
     }
 
+    /**
+     * Adds the given config to this entity.
+     * @param {IPage} config The config to be added.
+     */
+    public addconfig(config: IPage): void {
+        this._config.push(config);
+
+        config.setOwner(this);
+    }
+
     /** Performs pre-update procedures on this entity. */
     public updateReady(): void {
-        for (const c of this._components) {
-            c.updateReady();
-        }
-
-        for (const b of this._behaviors) {
-            b.updateReady();
-        }
-
         for (const c of this._children) {
             c.updateReady();
         }
@@ -230,19 +156,6 @@ export class EditorEntity extends TObject {
     public update(time: number): void {
         this._localMatrix = this.transform.getTransformationMatrix();
         this.updateWorldMatrix(this._parent !== undefined ? this._parent.worldMatrix : undefined);
-
-        for (const p of this._pageConfig) {
-            p.update(time);
-        }
-
-        for (const c of this._components) {
-            c.update(time);
-        }
-
-        for (const b of this._behaviors) {
-            b.update(time);
-        }
-
         for (const c of this._children) {
             c.update(time);
         }
@@ -257,11 +170,7 @@ export class EditorEntity extends TObject {
             return;
         }
 
-        for (const c of this._pageConfig) {
-            c.render(renderView);
-        }
-
-        for (const c of this._components) {
+        for (const c of this._config) {
             c.render(renderView);
         }
 

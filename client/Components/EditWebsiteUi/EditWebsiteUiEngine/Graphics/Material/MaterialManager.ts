@@ -71,6 +71,40 @@ export class MaterialConfig {
 
         return config;
     }
+
+    /**
+     * new material config
+     * @param {string} name
+     * @param {string} diffuse
+     * @param {string} specular
+     * @param {Color} tint
+     * @param {string} shader
+     * @return {MaterialConfig}
+     */
+    public static newConfig(name: string, diffuse: string, specular?: string, tint?: Color, shader?: string): MaterialConfig {
+        const config = new MaterialConfig();
+
+        config.name = name;
+
+        config.diffuse = diffuse;
+
+        if (shader !== undefined) {
+            config.shader = shader;
+        }
+
+        if (specular !== undefined) {
+            config.specular = specular;
+        }
+
+        if (tint !== undefined) {
+            config.tint = tint;
+        } else {
+            config.tint = Color.white();
+        }
+
+
+        return config;
+    }
 }
 
 /**
@@ -170,6 +204,7 @@ export class MaterialManager {
      */
     private static processMaterialAsset(asset: JsonAsset): void {
         const materials = asset.data.materials;
+        console.log(materials);
         if (materials) {
             for (const material of materials) {
                 const c = MaterialConfig.fromJson(material);

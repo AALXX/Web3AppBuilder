@@ -1,5 +1,7 @@
 import { BehaviorManager } from '../Behaviors/BehaviorManager';
 import { ComponentManager } from '../Components/ComponentsManager';
+import { PageManager } from '../document_page/PageManager';
+import { Vector3 } from '../Math/Vector3';
 import { RenderView } from '../Renderer/RenderView';
 import { Dictionary } from '../Types';
 import { BaseCamera } from './Camera/BaseCamera';
@@ -80,18 +82,23 @@ export class Level {
      * @param {any} jsonData The JSON-formatted data to initialize this level with.
      */
     public initialize(jsonData: any): void {
-        if (jsonData.objects === undefined) {
-            throw new Error('level initialization error: objects not present.');
+        if (jsonData.page === undefined) {
+            throw new Error('project initialization error: page not present.');
         }
 
-        if (jsonData.defaultCamera !== undefined) {
-            this._defaultCameraName = String(jsonData.defaultCamera);
+        this.loadPage(jsonData.page, this._sceneGraph.root);
+
+        if (jsonData.page.objects === undefined) {
+            throw new Error('project initialization error: objects not present.');
         }
 
-        for (const o in jsonData.objects) {
+        if (jsonData.page.defaultCamera !== undefined) {
+            this._defaultCameraName = String(jsonData.page.defaultCamera);
+        }
+
+        for (const o in jsonData.page.objects) {
             if (o !== undefined) {
-                const obj = jsonData.objects[o];
-
+                const obj = jsonData.page.objects[o];
                 this.loadEntity(obj, this._sceneGraph.root);
             }
         }
@@ -191,6 +198,31 @@ export class Level {
     }
 
     /**
+     * load base page and it's config
+     * @param {any} dataSection
+     * @param {EditorEntity} parent
+     */
+    public loadPage(dataSection: any, parent: EditorEntity) {
+        let name: string;
+        if (dataSection.pageConfig.name !== undefined) {
+            name = String(dataSection.pageConfig.name);
+        }
+        const entity: EditorEntity = new EditorEntity(name, this._sceneGraph);
+
+        entity.transform.position = new Vector3(960, 500, -1);
+
+        if (dataSection.pageConfig !== undefined) {
+            const data = dataSection.pageConfig;
+            const pageConfig = PageManager.extractPageConfig(data);
+            entity.addconfig(pageConfig);
+        }
+
+        if (parent !== undefined) {
+            parent.addChild(entity);
+        }
+    }
+
+    /**
      * Loads an ertity using the data section provided. Attaches to the provided parent.
      * @param {any} dataSection The data section to load from.
      * @param {EditorEntity} parent The parent object to attach to.
@@ -205,7 +237,7 @@ export class Level {
 
         // TODO: Use factories
         if (dataSection.type !== undefined) {
-            if ((dataSection.type = 'ortographicCamera')) {
+            if (dataSection.type == 'ortographicCamera') {
                 entity = new OrtogarphicCamera(name, this._sceneGraph);
                 this.registerCamera(entity as BaseCamera);
             } else {

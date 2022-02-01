@@ -7,6 +7,8 @@ import { CollisionManager } from './collision/collisionManager';
 import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { ComponentManager } from './Components/ComponentsManager';
 import { SpriteComponentBuilder } from './Components/spriteComponent';
+import { PageComponentBuilder } from './document_page/page';
+import { PageManager } from './document_page/PageManager';
 import { gl } from './GL/GLUtilities';
 // import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { MaterialManager } from './Graphics/Material/MaterialManager';
@@ -103,7 +105,13 @@ export namespace UiDesignEngine {
              * behavior builder
              */
             BehaviorManager.registerBuilder(new KeyboardMovementBehaviorBuilder());
+
             BehaviorManager.registerBuilder(new MoveComponentBehaviorBuilder());
+
+            /**
+             * Page builder
+             */
+            PageManager.registerBuilder(new PageComponentBuilder());
 
             // Load level config
             LevelManager.load();

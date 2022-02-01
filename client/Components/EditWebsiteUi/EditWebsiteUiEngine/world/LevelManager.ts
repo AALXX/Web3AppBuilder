@@ -61,7 +61,7 @@ export class LevelManager {
                 AssetManager.loadAsset(LevelManager._registeredLevels[name]);
             }
         } else {
-            throw new Error('Level named:' + name + ' is not registered.');
+            throw new Error(`Level named: ${name} is not registered.`);
         }
     }
 

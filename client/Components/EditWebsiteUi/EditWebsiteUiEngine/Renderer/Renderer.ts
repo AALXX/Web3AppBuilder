@@ -45,6 +45,9 @@ export class Renderer {
     public beginRender(time: number, editor: IEditor): void {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+        // Render the gui
+        this.renderGui();
+
         // Update the render view for the world pass.
         this._renderView.deltaTime = time;
         this._renderView.flipProjection = false;
@@ -55,9 +58,6 @@ export class Renderer {
 
         // Render the world.
         this.renderWorld();
-
-        // Render the gui
-        this.renderGui();
 
         editor.render(time, this._renderView);
     }
