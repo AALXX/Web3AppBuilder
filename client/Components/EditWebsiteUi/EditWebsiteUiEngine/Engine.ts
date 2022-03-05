@@ -49,7 +49,7 @@ export namespace UiDesignEngine {
          */
         public resize(): void {
             if (this._renderer) {
-                this._renderer.onResize();
+                this._renderer.onResize(window.innerWidth - 450, window.innerHeight);
             }
         }
 
@@ -124,6 +124,9 @@ export namespace UiDesignEngine {
 
             // Begin the preloading phase, which waits for various thing to be loaded before starting the game.
             this.preloading();
+
+            //* perfom editor start function
+            this._editor.start();
         }
 
         /**

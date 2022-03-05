@@ -14,6 +14,7 @@ import { IComponentData } from './interfaces/IComponentData';
  */
 export class CollisionComponentData implements IComponentData {
     public name: string;
+    public type: string;
     public shape: IShape2D;
     public static: boolean = true;
 
@@ -24,6 +25,10 @@ export class CollisionComponentData implements IComponentData {
     public setFromJson(json: any): void {
         if (json.name !== undefined) {
             this.name = String(json.name);
+        }
+
+        if (json.type !== undefined) {
+            this.type = String(json.type);
         }
 
         if (json.static !== undefined) {

@@ -11,6 +11,7 @@ import { IComponentData } from './interfaces/IComponentData';
  */
 export class SpriteComponentData implements IComponentData {
     public name: string;
+    public type: string;
     public materialName: string;
     public origin: Vector3 = Vector3.zero;
     public width: number;
@@ -23,6 +24,10 @@ export class SpriteComponentData implements IComponentData {
     public setFromJson(json: any): void {
         if (json.name !== undefined) {
             this.name = String(json.name);
+        }
+
+        if (json.type !== undefined) {
+            this.type = String(json.type);
         }
 
         if (json.width !== undefined) {

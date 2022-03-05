@@ -25,6 +25,8 @@ export enum Keys {
 
     /** The down arrow key */
     ARROW_DOWN = 40,
+
+    ControlLeft = 17,
 }
 
 /* eslint-enable */

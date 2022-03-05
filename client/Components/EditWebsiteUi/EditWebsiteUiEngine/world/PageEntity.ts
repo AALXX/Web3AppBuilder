@@ -135,11 +135,6 @@ export class PageEntity extends TObject {
      * Adds the given config to this entity.
      * @param {IPage} config The config to be added.
      */
-    public addconfig(config: IPage): void {
-        this._config.push(config);
-
-        config.setOwner(this);
-    }
 
     /** Performs pre-update procedures on this entity. */
     public updateReady(): void {

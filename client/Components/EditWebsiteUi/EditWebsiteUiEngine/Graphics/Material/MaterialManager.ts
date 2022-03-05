@@ -86,7 +86,7 @@ export class MaterialConfig {
 
         config.name = name;
 
-        config.diffuse = diffuse;
+        config.diffuse = 'diffuse';
 
         if (shader !== undefined) {
             config.shader = shader;
@@ -101,7 +101,6 @@ export class MaterialConfig {
         } else {
             config.tint = Color.white();
         }
-
 
         return config;
     }
@@ -181,6 +180,23 @@ export class MaterialManager {
     }
 
     /**
+     * change material propreties
+     * @param {string} materialName
+     * @param {Array} tint
+     */
+    public static changeMaterial(materialName: string, tint: { r: number; g: number; b: number; a: number }): void {
+        if (MaterialManager._materials[materialName] === undefined) {
+            // Check if a config is registered.
+            console.error('Material not found!');
+        } else {
+            MaterialManager._materials[materialName].material.tint.r = tint.r;
+            MaterialManager._materials[materialName].material.tint.g = tint.g;
+            MaterialManager._materials[materialName].material.tint.b = tint.b;
+            MaterialManager._materials[materialName].material.tint.a = tint.a;
+        }
+    }
+
+    /**
      * Releases a reference of a material with the provided name and decrements the reference count.
      * If the material's reference count is 0, it is automatically released.
      * @param {string} materialName The name of the material to be released.
@@ -204,7 +220,6 @@ export class MaterialManager {
      */
     private static processMaterialAsset(asset: JsonAsset): void {
         const materials = asset.data.materials;
-        console.log(materials);
         if (materials) {
             for (const material of materials) {
                 const c = MaterialConfig.fromJson(material);

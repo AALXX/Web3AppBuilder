@@ -7,6 +7,7 @@ const GraphicsCanvas = forwardRef<HTMLCanvasElement>(function Link(prosp:any, re
     return (<canvas id="editorArea" ref={ref} width={prosp.Width}/>);
 });
 
+
 /**
  * This Is Editing Website Ui Space
  * @return {JSX.Element}
@@ -17,7 +18,6 @@ export default function EditWebsiteUi() {
 
     useEffect(() => {
         engine.start(new Editor(), CanvasRef);
-
         window.onresize = () =>{
             engine.resize();
         };

@@ -209,7 +209,7 @@ export class Level {
         }
         const entity: EditorEntity = new EditorEntity(name, this._sceneGraph);
 
-        entity.transform.position = new Vector3(960, 500, -1);
+        entity.transform.position = new Vector3((window.innerWidth - 350) / 2, window.innerHeight / 2, -1);
 
         if (dataSection.pageConfig !== undefined) {
             const data = dataSection.pageConfig;

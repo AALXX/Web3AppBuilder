@@ -30,10 +30,13 @@ export class Renderer {
         return this._windowViewport.canvas;
     }
 
-    /** Called when the viewport is resized. */
-    public onResize(): void {
+    /** Called when the viewport is resized.
+     * @param {numver} width
+     * @param {numver} height
+     */
+    public onResize(width: number, height: number): void {
         if (this._windowViewport) {
-            this._windowViewport.onResize(window.innerWidth, window.innerHeight);
+            this._windowViewport.onResize(width, height);
         }
     }
 
@@ -44,9 +47,6 @@ export class Renderer {
      */
     public beginRender(time: number, editor: IEditor): void {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        // Render the gui
-        this.renderGui();
 
         // Update the render view for the world pass.
         this._renderView.deltaTime = time;
@@ -87,12 +87,5 @@ export class Renderer {
 
             LevelManager.activeLevel.render(this._renderView);
         }
-    }
-
-    /**
-     * render Gui
-     */
-    private renderGui(): void {
-        // TODO: When the gui system is implemented, render it here.
     }
 }

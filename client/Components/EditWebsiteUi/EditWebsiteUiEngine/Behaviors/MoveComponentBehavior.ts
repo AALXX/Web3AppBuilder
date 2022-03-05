@@ -1,4 +1,4 @@
-import { InputManager, Keys, MouseContext } from '../Input/InputManager';
+import { InputManager, Keys } from '../Input/InputManager';
 import { IMessageHandler } from '../MessageManager/IMessageHandler';
 import { Message } from '../MessageManager/Message';
 import { BaseBehavior } from './BaseBehavior';
@@ -73,7 +73,6 @@ export class KeyboardMovementBehavior extends BaseBehavior implements IMessageHa
         Message.subscribe('MOUSE_UP', this);
         Message.subscribe(`MOUSE_HOVER: ${data.ownerName}`, this);
         Message.subscribe(`MOUSE_HOVER_EXIT: ${data.ownerName}`, this);
-        // console.log(data.ownerName);
     }
 
     /**
@@ -81,17 +80,10 @@ export class KeyboardMovementBehavior extends BaseBehavior implements IMessageHa
      * @param {number} time
      */
     public update(time: number): void {
-        if (InputManager.isKeyDown(Keys.ARROW_LEFT)) {
-            // this._owner.transform.position.y += this.speed;
-        }
-
-        if (this._isHolding && this._isHovering) {
+        if (this._isHolding && this._isHovering && InputManager.isKeyDown(Keys.ControlLeft)) {
             this._owner.transform.position.x = InputManager.getMousePosition().x;
             this._owner.transform.position.y = InputManager.getMousePosition().y;
         }
-
-        // console.log(this._owner.name);
-        // console.log(this._isHovering);
 
         super.update(time);
     }
@@ -101,12 +93,9 @@ export class KeyboardMovementBehavior extends BaseBehavior implements IMessageHa
      * @param {Message} message
      */
     public onMessage(message: Message): void {
-        // const context = message.context as MouseContext;
-
         /* eslint-disable */
         switch (message.code) {
             case 'MOUSE_DOWN':
-                // console.log(`Pos: [${context.position.x},${context.position.y}]`);
                 this._isHolding = true;
                 break;
 

@@ -207,8 +207,8 @@ export class RendererViewport {
 
         if (this._canvas !== undefined) {
             // Adjust the viewport to fill the screen.
-            this._canvas.current.width = window.innerWidth;
-            this._canvas.current.height = window.innerHeight;
+            this._canvas.current.width = this._width;
+            this._canvas.current.height = this._height;
             this._width = window.innerWidth;
             this._height = window.innerHeight;
             gl.viewport(this._x, this._y, this._width, this._height);

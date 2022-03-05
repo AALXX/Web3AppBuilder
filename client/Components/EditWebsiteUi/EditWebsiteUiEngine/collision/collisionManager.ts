@@ -110,10 +110,10 @@ export class CollisionManager {
 
             if (comp.shape.isMouseHovering(InputManager.getMousePosition())) {
                 comp.onHover();
-                Message.sendPriority(`MOUSE_HOVER: ${comp.name}`, this);
+                // Message.sendPriority(`MOUSE_HOVER: ${comp.name}`, this);
             } else {
                 comp.onHoverExit();
-                Message.sendPriority(`MOUSE_HOVER_EXIT: ${comp.name}`, this);
+                // Message.sendPriority(`MOUSE_HOVER_EXIT: ${comp.name}`, this);
             }
         }
 

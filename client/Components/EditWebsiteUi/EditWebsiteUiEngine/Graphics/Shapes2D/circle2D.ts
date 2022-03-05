@@ -6,6 +6,10 @@ import { Rectangle2D } from './rectangle2d';
  * class cirlce2D
  */
 export class Circle2D implements IShape2D {
+    /**
+     * check if mouse is hovering
+     * @param {Vector2} mousePos
+     */
     isMouseHovering(mousePos: Vector2): boolean {
         throw new Error('Method not implemented.');
     }

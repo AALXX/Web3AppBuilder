@@ -1,10 +1,14 @@
 import { RenderView } from './Renderer/RenderView';
-
 /**
  * An interface which represents an object that holds edito-specific information.
  * Used for loading the first/initial level
  */
 export interface IEditor {
+    /**
+     * on engine start
+     */
+    start(): void;
+
     /**
      * Called before the main update loop, after updateReady has been called on the engine subsystems.
      * Used for loading the first/initial level, etc.

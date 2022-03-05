@@ -4,6 +4,8 @@ import { IPage } from '../document_page/interfaces/IPage';
 import { Matrix4x4 } from '../Math/Matrix4x4';
 import { Transform } from '../Math/Transform';
 import { Vector3 } from '../Math/Vector3';
+import { IMessageHandler } from '../MessageManager/IMessageHandler';
+import { Message } from '../MessageManager/Message';
 import { TObject } from '../Objects/TObject';
 import { RenderView } from '../Renderer/RenderView';
 import { SceneGraph } from './SceneGraph';
@@ -11,7 +13,7 @@ import { SceneGraph } from './SceneGraph';
 /**
  * Null object in the world responable for world state
  */
-export class EditorEntity extends TObject {
+export class EditorEntity extends TObject implements IMessageHandler {
     private _children: EditorEntity[] = [];
     private _parent: EditorEntity;
     private _isLoaded: boolean = false;
@@ -23,6 +25,8 @@ export class EditorEntity extends TObject {
 
     private _localMatrix: Matrix4x4 = Matrix4x4.identity();
     private _worldMatrix: Matrix4x4 = Matrix4x4.identity();
+
+    private _isHovering: boolean = false;
 
     /** The name of this object. */
     public name: string;
@@ -190,9 +194,55 @@ export class EditorEntity extends TObject {
         config.setOwner(this);
     }
 
+    /**
+     * on message
+     * @param {Message} message
+     */
+    public onMessage(message: Message): void {
+        // console.log(MaterialManager.getMaterial('wood'));
+        const event: CustomEvent = new CustomEvent('selectObject', {
+            detail: {
+                name: this.name,
+                transform: this.transform,
+                components: this._components,
+                behaviors: this._behaviors,
+                // MatName: this.getMaterialName(this._components[0]),
+            },
+        });
+
+        /* eslint-disable */
+        switch (message.code) {
+            case 'MOUSE_DOWN':
+                if (this._isHovering) {
+                    window.dispatchEvent(event);
+                }
+                break;
+            case 'MOUSE_UP':
+                if (this._isHovering) {
+                    // console.log(this.getMaterialName(this._components[0]));
+                    window.dispatchEvent(event);
+                }
+                break;
+
+            case `MOUSE_HOVER: ${this.name}`:
+                this._isHovering = true;
+                break;
+
+            case `MOUSE_HOVER_EXIT: ${this.name}`:
+                this._isHovering = false;
+                break;
+        }
+        /* eslint-enable */
+    }
+
     /** Performs loading procedures on this entity. */
     public load(): void {
         this._isLoaded = true;
+
+        Message.subscribe(`MOUSE_HOVER: ${this.name}`, this);
+        Message.subscribe(`MOUSE_HOVER_EXIT: ${this.name}`, this);
+        Message.subscribe(`MOUSE_DOWN`, this);
+        Message.subscribe(`MOUSE_UP`, this);
 
         for (const p of this._pageConfig) {
             p.load();
@@ -230,10 +280,6 @@ export class EditorEntity extends TObject {
     public update(time: number): void {
         this._localMatrix = this.transform.getTransformationMatrix();
         this.updateWorldMatrix(this._parent !== undefined ? this._parent.worldMatrix : undefined);
-
-        for (const p of this._pageConfig) {
-            p.update(time);
-        }
 
         for (const c of this._components) {
             c.update(time);
