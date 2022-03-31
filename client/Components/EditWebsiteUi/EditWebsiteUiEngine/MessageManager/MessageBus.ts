@@ -1,64 +1,81 @@
 import { IMessageHandler } from './IMessageHandler';
-import { MessageSubscriptionNode } from './MessageSubscriptionNode';
+import { MessageCallback, MessageQueueNode, MessageSubscriptionNode } from './MessageSubscriptionNode';
 import { Message, MessagePriority } from './Message';
 
-/**
- * Used for Sending messages
- */
+/** The message manager responsible for sending messages across the system. */
 export class MessageBus {
-    private static _subscriptions: { [code: string]: IMessageHandler[] } = {};
+    private static _subscriptions: { [code: string]: MessageSubscriptionNode[] } = {};
 
-    public static _normalQueueMessagePerUpdate: number = 10;
+    private static _normalQueueMessagePerUpdate: number = 10;
+    private static _normalMessageQueue: MessageQueueNode[] = [];
 
-    private static _normalMessageQueue: MessageSubscriptionNode[] = [];
-
-    /**
-     * Class constructor
-     */
-    private constructor() {
-
-    }
+    /** Constructor hidden to prevent instantiation. */
+    private constructor() {}
 
     /**
-     * Add subscription func
-     * @param {string} code
-     * @param {IMessageHandler} handler
+     * Adds a subscription to the provided code using the provided handler.
+     * @param {string} code The code to listen for.
+     * @param {IMessageHandler} handler The handler to be subscribed.
+     * @param {MessageCallback} callback callback
      */
-    public static addSubscrition(code: string, handler: IMessageHandler): void {
+    public static addSubscription(code: string, handler: IMessageHandler, callback: MessageCallback): void {
         if (MessageBus._subscriptions[code] === undefined) {
             MessageBus._subscriptions[code] = [];
         }
 
-        if (MessageBus._subscriptions[code].indexOf(handler) !== -1) {
-            console.warn('Attempting to add a duplicate handler to code: ' + code + '. Subscription not added.');
+        let matches: MessageSubscriptionNode[] = [];
+        if (handler !== undefined) {
+            matches = MessageBus._subscriptions[code].filter((x) => x.handler === handler);
+        } else if (callback !== undefined) {
+            matches = MessageBus._subscriptions[code].filter((x) => x.callback === callback);
         } else {
-            MessageBus._subscriptions[code].push(handler);
+            console.warn('Cannot add subscription where both the handler and callback are undefined.');
+            return;
+        }
+
+        if (matches.length === 0) {
+            const node = new MessageSubscriptionNode(code, handler, callback);
+            MessageBus._subscriptions[code].push(node);
+        } else {
+            console.warn('Attempting to add a duplicate handler/callback to code: ' + code + '. Subscription not added.');
         }
     }
 
     /**
-     * REmove Subscription
-     * @param {string} code
-     * @param {IMessageHandler} handler
+     * Removes a subscription to the provided code using the provided handler.
+     * @param {string} code The code to no longer listen for.
+     * @param {IMessageHandler} handler The handler to be unsubscribed.
+     * @param {MessageCallback} callback callback
      */
-    public static removeSubscrition(code: string, handler: IMessageHandler): void {
+    public static removeSubscription(code: string, handler: IMessageHandler, callback: MessageCallback): void {
         if (MessageBus._subscriptions[code] === undefined) {
             console.warn('Cannot unsubscribe handler from code: ' + code + ' Because that code is not subscribed to.');
             return;
         }
 
-        const nodeIndex = MessageBus._subscriptions[code].indexOf(handler);
-        if (nodeIndex !== -1) {
-            MessageBus._subscriptions[code].splice(nodeIndex, 1);
+        let matches: MessageSubscriptionNode[] = [];
+        if (handler !== undefined) {
+            matches = MessageBus._subscriptions[code].filter((x) => x.handler === handler);
+        } else if (callback !== undefined) {
+            matches = MessageBus._subscriptions[code].filter((x) => x.callback === callback);
+        } else {
+            console.warn('Cannot remove subscription where both the handler and callback are undefined.');
+            return;
+        }
+        for (const match of matches) {
+            const nodeIndex = MessageBus._subscriptions[code].indexOf(match);
+            if (nodeIndex !== -1) {
+                MessageBus._subscriptions[code].splice(nodeIndex, 1);
+            }
         }
     }
 
     /**
-     * POst Method
-     * @param {Message} message
+     * Posts the provided message to the message system.
+     * @param {Message} message The message to be sent.
      */
     public static post(message: Message): void {
-        console.log('Message posted:', message);
+        // console.log('Message posted:', message);
         const handlers = MessageBus._subscriptions[message.code];
         if (handlers === undefined) {
             return;
@@ -66,16 +83,25 @@ export class MessageBus {
 
         for (const h of handlers) {
             if (message.priority === MessagePriority.HIGH) {
-                h.onMessage(message);
+                if (h.handler !== undefined) {
+                    h.handler.onMessage(message);
+                } else {
+                    if (h.callback !== undefined) {
+                        h.callback(message);
+                    } else {
+                        // NOTE: Technically shouldn't be possible, but...
+                        console.log('There is no hander OR callback for message code: ' + message.code);
+                    }
+                }
             } else {
-                MessageBus._normalMessageQueue.push(new MessageSubscriptionNode(message, h));
+                MessageBus._normalMessageQueue.push(new MessageQueueNode(message, h.handler, h.callback));
             }
         }
     }
 
     /**
-     * Update Method
-     * @param {number} time
+     * Performs update routines on this message bus.
+     * @param {number} time The delta time in milliseconds since the last update.
      */
     public static update(time: number): void {
         if (MessageBus._normalMessageQueue.length === 0) {
@@ -85,7 +111,13 @@ export class MessageBus {
         const messageLimit = Math.min(MessageBus._normalQueueMessagePerUpdate, MessageBus._normalMessageQueue.length);
         for (let i = 0; i < messageLimit; ++i) {
             const node = MessageBus._normalMessageQueue.pop();
-            node.handler.onMessage(node.message);
+            if (node.handler !== undefined) {
+                node.handler.onMessage(node.message);
+            } else if (node.callback !== undefined) {
+                node.callback(node.message);
+            } else {
+                console.warn('Unable to process message node because there is no handler or callback: ' + node);
+            }
         }
     }
 }

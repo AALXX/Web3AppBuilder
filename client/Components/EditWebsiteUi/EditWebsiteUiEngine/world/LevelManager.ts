@@ -1,79 +1,132 @@
-import { Shaders } from '../GL/Shaders';
+import { AssetManager, MESSAGE_ASSET_LOADER_ASSET_LOADED } from '../AssetsManager/AssetsManager';
+import { JsonAsset } from '../AssetsManager/JsonAssetLoader';
+import { Message } from '../MessageManager/Message';
 import { Level } from './Level';
-import { TestLevel } from './TestLevel';
 
 /**
- * Level Manager
+ * Manages levels in the engine. Levels (for now) are registered with this manager
+ * so that they may be loaded on demand. Register a level name
+ * with a file path and load the level configurations dynamically.
  */
 export class LevelManager {
-    private static _globalZoneID: number = -1;
-    private static _levels: { [id: number]: Level } = {};
-    private static _activeZone: Level;
+    private static _registeredLevels: { [name: string]: string } = {};
+    private static _activeLevel: Level;
+    private static _configLoaded: boolean = false;
 
+    /** Private constructor to enforce singleton pattern. */
+    private constructor() {}
 
-    /** Class constructor */
-    private constructor() {
+    /** Indicates if this manager is loaded. */
+    public static get isLoaded(): boolean {
+        return LevelManager._configLoaded;
     }
 
-    /**
-     * Create level
-     * @param {string} name
-     * @param {string} description
-     * @return {number}
-     */
-    public static createLevel(name: string, description: string): number {
-        LevelManager._globalZoneID++;
-        const level = new Level(LevelManager._globalZoneID, name, description);
-        LevelManager._levels[LevelManager._globalZoneID] = level;
-        return LevelManager._globalZoneID;
+    /** Gets the active level. */
+    public static get activeLevel(): Level {
+        return LevelManager._activeLevel;
     }
 
-    // TODO: This is temporary code until file loading is supported.
-    /**
-     * Creaet test zone
-     * @return {number}
-     */
-    public static createTestLevel(): number {
-        LevelManager._globalZoneID++;
-        const level = new TestLevel(LevelManager._globalZoneID, 'test', 'A simple test zone');
-        LevelManager._levels[LevelManager._globalZoneID] = level;
-        return LevelManager._globalZoneID;
-    }
-
-    /**
-     * ChangeLevel
-     * @param {number} id
-     */
-    public static changeLevel(id: number): void {
-        if (LevelManager._activeZone !== undefined) {
-            LevelManager._activeZone.onDeactivated();
-            LevelManager._activeZone.unload();
-        }
-
-        if (LevelManager._levels[id] !== undefined) {
-            LevelManager._activeZone = LevelManager._levels[id];
-            LevelManager._activeZone.onActivated();
-            LevelManager._activeZone.load();
+    /** Loads this manager. */
+    public static load(): void {
+        // Get the asset(s). TODO: This probably should come from a central asset manifest.
+        const asset = AssetManager.getAsset('http://localhost:9000/kw8rybzkj4ova9uyj1/pages.json');
+        if (asset !== undefined) {
+            LevelManager.processLevelConfigAsset(asset as JsonAsset);
+        } else {
+            // Listen for the asset load.
+            Message.subscribeCallback(MESSAGE_ASSET_LOADER_ASSET_LOADED + 'http://localhost:9000/kw8rybzkj4ova9uyj1/pages.json', LevelManager.onMessage);
         }
     }
 
     /**
-     * Update
-     * @param {number} time
+     * Changes the active level to the one with the provided name.
+     * @param {string} name The name of the level to change to.
      */
-    public static update(time: number): void {
-        if (LevelManager._activeZone !== undefined) {
-            LevelManager._activeZone.update(time);
+    public static changeLevel(name: string): void {
+        if (LevelManager._activeLevel !== undefined) {
+            LevelManager._activeLevel.onDeactivated();
+            LevelManager._activeLevel.unload();
+            LevelManager._activeLevel = undefined;
+        }
+
+        // Make sure the level is registered.
+        if (LevelManager._registeredLevels[name] !== undefined) {
+            // If the level asset is already loaded, get it and use it to load the level.
+            // Otherwise, retrieve the asset and load the level upon completion.
+            if (AssetManager.isAssetLoaded(LevelManager._registeredLevels[name])) {
+                const asset = AssetManager.getAsset(LevelManager._registeredLevels[name]);
+                LevelManager.loadLevel(asset);
+            } else {
+                Message.subscribeCallback(MESSAGE_ASSET_LOADER_ASSET_LOADED + LevelManager._registeredLevels[name], LevelManager.onMessage);
+                AssetManager.loadAsset(LevelManager._registeredLevels[name]);
+            }
+        } else {
+            throw new Error(`Level named: ${name} is not registered.`);
         }
     }
 
     /**
-     * rendering
-     * @param {Shaders} shader
+     * The message handler.
+     * @param {Message} message The message to be handled.
      */
-    public static render(shader: Shaders): void {
-        if (LevelManager._activeZone !== undefined) {
-            LevelManager._activeZone.render(shader);
+    public static onMessage(message: Message): void {
+        // TODO: one for each asset.
+        if (message.code === MESSAGE_ASSET_LOADER_ASSET_LOADED + 'http://localhost:9000/kw8rybzkj4ova9uyj1/pages.json') {
+            Message.unsubscribeCallback(MESSAGE_ASSET_LOADER_ASSET_LOADED + 'http://localhost:9000/kw8rybzkj4ova9uyj1/pages.json', LevelManager.onMessage);
+
+            LevelManager.processLevelConfigAsset(message.context as JsonAsset);
+        } else if (message.code.indexOf(MESSAGE_ASSET_LOADER_ASSET_LOADED) !== -1) {
+            console.log('Level loaded:' + message.code);
+            const asset = message.context as JsonAsset;
+            LevelManager.loadLevel(asset);
         }
+    }
+
+    /**
+     * load level
+     * @param {JsonAsset} asset
+     */
+    private static loadLevel(asset: JsonAsset): void {
+        console.log('Loading level:' + asset.name);
+        const data = asset.data;
+
+        let levelName: string;
+        if (data.name === undefined) {
+            throw new Error('Zone file format exception: Zone name not present.');
+        } else {
+            levelName = String(data.name);
+        }
+
+        let description: string;
+        if (data.description !== undefined) {
+            description = String(data.description);
+        }
+
+        LevelManager._activeLevel = new Level(levelName, description);
+        LevelManager._activeLevel.initialize(data);
+        LevelManager._activeLevel.onActivated();
+        LevelManager._activeLevel.load();
+
+        Message.send('LEVEL_LOADED', this);
+    }
+
+    /**
+     * processLevelConfigAsset
+     * @param {JsonAsset} asset
+     */
+    private static processLevelConfigAsset(asset: JsonAsset): void {
+        const levels = asset.data.levels;
+        if (levels) {
+            for (const level of levels) {
+                if (level.name !== undefined && level.file !== undefined) {
+                    LevelManager._registeredLevels[level.name] = String(level.file);
+                } else {
+                    throw new Error('Invalid level config file format: name or file is missing');
+                }
+            }
+        }
+
+        // TODO: Should only set this if ALL queued assets have loaded.
+        LevelManager._configLoaded = true;
     }
 }

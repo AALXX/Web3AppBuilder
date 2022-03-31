@@ -1,59 +1,60 @@
-import { Shaders } from '../GL/Shaders';
-import { SimObject } from '../world/SimObject';
+import { RenderView } from '../Renderer/RenderView';
+import { EditorEntity } from '../world/EditorEntity';
+import { IComponent } from './interfaces/IComponent';
+import { IComponentData } from './interfaces/IComponentData';
 
 /**
  * Base compoenent Class resposible with rendering/updating
  */
-export abstract class BaseComponent {
-    protected _owner: SimObject;
+export abstract class BaseComponent implements IComponent {
+    protected _owner: EditorEntity;
+    protected _data: IComponentData;
 
     public name: string;
 
-
     /**
-     * Class contructor
-     * @param {string} name
+     * class constructor
+     * @param {IComponentData} data
      */
-    public constructor(name: string) {
-
+    public constructor(data: IComponentData) {
+        this._data = data;
+        this.name = data.name;
     }
 
     /**
      * get owner
      */
-    public get owner(): SimObject {
+    public get owner(): EditorEntity {
         return this._owner;
     }
 
     /**
-     * set  owner
-     * @param {SimObject} owner
+     * set owner
+     * @param {EditorEntity} owner
      */
-    public setOwner(owner: SimObject): void {
+    public setOwner(owner: EditorEntity): void {
         this._owner = owner;
     }
 
     /**
      * load
      */
-    public load(): void {
-
-    }
+    public load(): void {}
 
     /**
-     * Update
+     * before update
+     */
+    public updateReady(): void {}
+
+    /**
+     * update method
      * @param {number} time
      */
-    public update(time: number): void {
-
-    }
-
+    public update(time: number): void {}
 
     /**
-     * render
-     * @param {Shaders} shader
+     * render method
+     * @param {RenderView} renderView
      */
-    public render(shader: Shaders): void {
-
-    }
+    public render(renderView: RenderView): void {}
 }

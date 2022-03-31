@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body {
     padding: 0;
@@ -18,4 +22,25 @@ a {
 
 * {
     box-sizing: border-box;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    border-radius: 100vh;
+    background: #5c5c5c;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #414141;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #474747;
 }

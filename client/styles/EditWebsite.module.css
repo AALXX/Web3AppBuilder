@@ -1,3 +1,5 @@
+
+
 .PageContainer {
     display: flex;
     flex-direction: row;
@@ -9,8 +11,9 @@
 
 .PagesTab {
     display: flex;
+    flex-direction: column;
     width: 20rem;
-    background-color: #505050;
+    background-color: #3b3b3b;
 }
 
 /** Page Editor */
@@ -39,3 +42,4 @@
     background-color: #505050;
     margin-left: auto;
 }
+

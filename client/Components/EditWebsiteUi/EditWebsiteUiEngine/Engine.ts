@@ -1,85 +1,207 @@
 import { RefObject } from 'react';
-import { AssetsManager } from './AssetsManager/AssetsManager';
-import { gl, GlUtilities } from './GL/GLUtilities';
-import { BasicShader } from './GL/shaders/basicShader';
-import { Color } from './Graphics/Material/Color';
-import { Material } from './Graphics/Material/Material';
+import { AssetManager } from './AssetsManager/AssetsManager';
+import { BehaviorManager } from './Behaviors/BehaviorManager';
+import { KeyboardMovementBehaviorBuilder } from './Behaviors/keyboardMovementBehavior';
+import { MoveComponentBehaviorBuilder } from './Behaviors/MoveComponentBehavior';
+import { CollisionManager } from './collision/collisionManager';
+import { CollisionComponentBuilder } from './Components/collisionComponent';
+import { ComponentManager } from './Components/ComponentsManager';
+import { SpriteComponentBuilder } from './Components/spriteComponent';
+import { PageComponentBuilder } from './document_page/page';
+import { PageManager } from './document_page/PageManager';
+import { gl } from './GL/GLUtilities';
+// import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { MaterialManager } from './Graphics/Material/MaterialManager';
-import { Matrix4x4 } from './Math/Matrix4x4';
+import { ShaderManager } from './Graphics/ShaderManager';
+import { IEditor } from './IEditor';
+import { InputManager } from './Input/InputManager';
+import { IMessageHandler } from './MessageManager/IMessageHandler';
+import { Message } from './MessageManager/Message';
 import { MessageBus } from './MessageManager/MessageBus';
+import { Renderer } from './Renderer/Renderer';
+import { RendererViewportCreateInfo, ViewportProjectionType } from './Renderer/RendererViewport';
 import { LevelManager } from './world/LevelManager';
 export namespace UiDesignEngine {
     /**
      ** Engine Class
      */
-    export class Engine {
-        private _canvas: RefObject<HTMLCanvasElement>;
+    export class Engine implements IMessageHandler {
+        private _previousTime: number = 0;
+        private _editorWidth: number;
+        private _editorHeight: number;
 
-        private _basicShader: BasicShader;
-        private _projection: Matrix4x4;
+        private _isFirstUpdate: boolean = true;
 
+        private _renderer: Renderer;
+        private _editor: IEditor;
         /**
-         ** Class Constructor
+         * Class Constructor
+         * @param {number} width
+         * @param {number} height
          */
-        public constructor() {
-
-        }
-
-        /**
-         * Start Method
-         * @param {RefObject<HTMLCanvasElement>} canvasRef
-         */
-        public start(canvasRef: RefObject<HTMLCanvasElement>): void {
-            this._canvas = canvasRef;
-            GlUtilities.initialize(this._canvas);
-            AssetsManager.initialize();
-
-            gl.clearColor(0, 0, 0, 1);
-
-            this._basicShader = new BasicShader();
-            this._basicShader.useShader();
-
-            //* Load Mterials
-            MaterialManager.registerMaterial(new Material('wood', '../assets/texure.jpg', new Color(255, 255, 255, 255)));
-
-            const levelID = LevelManager.createTestLevel();
-
-            //* Load
-            this._projection = Matrix4x4.orthographic(0, this._canvas.current.width, this._canvas.current.height, 0, -100.0, 100.0);
-
-            LevelManager.changeLevel(levelID);
-
-
-            this.resize();
-            this.update();
-        }
-
-        /**
-         * Update Method
-         */
-        public update(): void {
-            MessageBus.update(0);
-
-            LevelManager.update(0);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            LevelManager.render(this._basicShader);
-
-            const projectionPosition = this._basicShader.getUniformLocation('u_projection');
-            gl.uniformMatrix4fv(projectionPosition, false, new Float32Array(this._projection.data));
-
-            //* Call this instance update
-            requestAnimationFrame(this.update.bind(this));
+        public constructor(width?: number, height?: number) {
+            this._editorWidth = width;
+            this._editorHeight = height;
         }
 
         /**
          * Resize Method
          */
         public resize(): void {
-            this._canvas.current.width = window.innerWidth;
-            this._canvas.current.height = window.innerHeight;
-            gl.viewport(0, 0, this._canvas.current.width, this._canvas.current.height);
-            this._projection = Matrix4x4.orthographic(0, this._canvas.current.width, this._canvas.current.height, 0, -100.0, 100.0);
+            if (this._renderer) {
+                this._renderer.onResize(window.innerWidth - 450, window.innerHeight);
+            }
+        }
+
+        /**
+         * Start Method
+         * @param {IEditor} editor
+         * @param {RefObject<HTMLCanvasElement>} canvasRef
+         * @param {string} elementName
+         */
+        public start(editor: IEditor, canvasRef: RefObject<HTMLCanvasElement>, elementName?: string): void {
+            this._editor = editor;
+
+            const rendererViewportCreateInfo: RendererViewportCreateInfo = new RendererViewportCreateInfo();
+            rendererViewportCreateInfo.elementId = elementName;
+            rendererViewportCreateInfo.projectionType = ViewportProjectionType.ORTHOGRAPHIC;
+            rendererViewportCreateInfo.width = this._editorWidth;
+            rendererViewportCreateInfo.height = this._editorHeight;
+            rendererViewportCreateInfo.nearClip = 0.1;
+            rendererViewportCreateInfo.farClip = 1000.0;
+            rendererViewportCreateInfo.x = 0;
+            rendererViewportCreateInfo.y = 0;
+
+            this._renderer = new Renderer(rendererViewportCreateInfo, canvasRef);
+
+            console.log(`GL_VERSION:               ${gl.getParameter(gl.VERSION)}`);
+            console.log(`GL_VENDOR:                ${gl.getParameter(gl.VENDOR)}`);
+            console.log(`GL_RENDERER:              ${gl.getParameter(gl.RENDERER)}`);
+            console.log(`SHADING_LANGUAGE_VERSION: ${gl.getParameter(gl.SHADING_LANGUAGE_VERSION)}`);
+
+            // Attempt to load additional information.
+            const debugRendererExtension = gl.getExtension('WEBGL_debug_renderer_info');
+            if (debugRendererExtension !== undefined && debugRendererExtension !== null) {
+                console.debug(`UNMASKED_VENDOR_WEBGL:    ${gl.getParameter(debugRendererExtension.UNMASKED_VENDOR_WEBGL)}`);
+                console.debug(`UNMASKED_RENDERER_WEBGL:  ${gl.getParameter(debugRendererExtension.UNMASKED_RENDERER_WEBGL)}`);
+            }
+
+            // Initialize various sub-systems.
+            AssetManager.initialize();
+            ShaderManager.initialize();
+            InputManager.initialize(this._renderer.windowViewportCanvas);
+
+            // Load fonts
+            // BitmapFontManager.load();
+
+            /**
+             * component buider
+             */
+            ComponentManager.registerBuilder(new SpriteComponentBuilder());
+
+            ComponentManager.registerBuilder(new CollisionComponentBuilder());
+
+            /**
+             * behavior builder
+             */
+            BehaviorManager.registerBuilder(new KeyboardMovementBehaviorBuilder());
+
+            BehaviorManager.registerBuilder(new MoveComponentBehaviorBuilder());
+
+            /**
+             * Page builder
+             */
+            PageManager.registerBuilder(new PageComponentBuilder());
+
+            // Load level config
+            LevelManager.load();
+
+            // Load material configs
+            MaterialManager.load();
+
+            // Trigger a resize to make sure the viewport is corrent.
+            this.resize();
+
+            // Begin the preloading phase, which waits for various thing to be loaded before starting the game.
+            this.preloading();
+
+            //* perfom editor start function
+            this._editor.start();
+        }
+
+        /**
+         * before loadeing method
+         */
+        private preloading(): void {
+            // Make sure to always update the message bus.
+            MessageBus.update(0);
+
+            // if (!BitmapFontManager.isLoaded) {
+            //     requestAnimationFrame(this.preloading.bind(this));
+            //     return;
+            // }
+
+            if (!MaterialManager.isLoaded) {
+                requestAnimationFrame(this.preloading.bind(this));
+                return;
+            }
+
+            if (!LevelManager.isLoaded) {
+                requestAnimationFrame(this.preloading.bind(this));
+                return;
+            }
+
+            // Perform items such as loading the first/initial level, etc.
+            this._editor.updateReady();
+
+            // Kick off the render loop.
+            this.loop();
+        }
+
+        /**
+         * on message recived
+         * @param {Message} message
+         */
+        public onMessage(message: Message): void {}
+
+        /**
+         * main game loop
+         */
+        private loop(): void {
+            if (this._isFirstUpdate) {
+            }
+
+            const delta = performance.now() - this._previousTime;
+
+            this.update(delta);
+            this.render(delta);
+
+            this._previousTime = performance.now();
+
+            requestAnimationFrame(this.loop.bind(this));
+        }
+        /**
+         * Update Method
+         * @param {number} delta
+         */
+        private update(delta: number): void {
+            MessageBus.update(delta);
+            if (LevelManager.isLoaded && LevelManager.activeLevel !== undefined && LevelManager.activeLevel.isLoaded) {
+                LevelManager.activeLevel.update(delta);
+            }
+
+            CollisionManager.update(delta);
+            this._editor.update(delta);
+        }
+
+        /**
+         * Render method
+         * @param {number} delta
+         */
+        private render(delta: number): void {
+            this._renderer.beginRender(delta, this._editor);
+
+            this._renderer.endRender();
         }
     }
 }

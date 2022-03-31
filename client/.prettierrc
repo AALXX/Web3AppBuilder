@@ -1,9 +1,8 @@
 {
     "endOfLine": "lf",
-    "printWidth": 80,
+    "printWidth": 220,
     "tabWidth": 4,
-    "trailingComma": "es5",
+    "trailingComma": "all",
     "singleQuote": true,
-    "bracketSpacing": false
-    
+    "bracketSpacing": true
 }

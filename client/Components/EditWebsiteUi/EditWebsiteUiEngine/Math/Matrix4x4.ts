@@ -1,32 +1,20 @@
 import { Vector3 } from './Vector3.js';
 
-/**
- * Matrix 4x4 class
- */
+/** A 4x4 matrix to be used for transformations. */
 export class Matrix4x4 {
     private _data: number[] = [];
 
-    /**
-     * Class constructor
-     */
+    /** Creates a new matrix 4x4. Marked as private to enforce the use of static methods. */
     private constructor() {
-        this._data = [
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1,
-        ];
+        this._data = [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0];
     }
 
-    /**
-     * Get Data
-     */
+    /** Returns the data contained in this matrix as an array of numbers. */
     public get data(): number[] {
         return this._data;
     }
 
-    /**
-     * Matrix identity
+    /** Creates and returns an identity matrix.
      * @return {Matrix4x4}
      */
     public static identity(): Matrix4x4 {
@@ -34,47 +22,48 @@ export class Matrix4x4 {
     }
 
     /**
-     * ortographic Matrix
-     * @param {number} left
-     * @param {number} right
-     * @param {number} bottom
-     * @param {number} top
-     * @param {number} nearClip
-     * @param {number} farClip
+     * Creates and returns a new orthographic projection matrix.
+     * @param {number} left The left extents of the viewport.
+     * @param {number} right The right extents of the viewport.
+     * @param {number} bottom The bottom extents of the viewport.
+     * @param {number} top The top extents of the viewport.
+     * @param {number} nearClip The near clipping plane.
+     * @param {number} farClip The far clipping plane.
      * @return {Matrix4x4}
      */
     public static orthographic(left: number, right: number, bottom: number, top: number, nearClip: number, farClip: number): Matrix4x4 {
-        const matrix = new Matrix4x4();
+        const m = new Matrix4x4();
 
-        const LeftRight: number = 1.0 / (left - right);
-        const BottomTop: number = 1.0 / (bottom - top);
-        const NearFar: number = 1.0 / (nearClip - farClip);
+        const lr: number = 1.0 / (left - right);
+        const bt: number = 1.0 / (bottom - top);
+        const nf: number = 1.0 / (nearClip - farClip);
 
-        matrix._data[0] = -2.0 * LeftRight;
-        matrix._data[5] = -2.0 * BottomTop;
-        matrix._data[10] = 2.0 * NearFar;
+        m._data[0] = -2.0 * lr;
 
-        matrix._data[12] = (left + right) * LeftRight;
-        matrix._data[13] = (top + bottom) * BottomTop;
-        matrix._data[14] = (nearClip + farClip) * NearFar;
+        m._data[5] = -2.0 * bt;
 
+        m._data[10] = 2.0 * nf;
 
-        return matrix;
+        m._data[12] = (left + right) * lr;
+        m._data[13] = (top + bottom) * bt;
+        m._data[14] = (farClip + nearClip) * nf;
+
+        return m;
     }
 
     /**
-     * MAtrix translaton
-     * @param {Vector3} position
+     * Creates a transformation matrix using the provided position.
+     * @param {Vector3} position The position to be used in transformation.
      * @return {Matrix4x4}
      */
     public static translation(position: Vector3): Matrix4x4 {
-        const matrix = new Matrix4x4();
+        const m = new Matrix4x4();
 
-        matrix._data[12] = position.x;
-        matrix._data[13] = position.y;
-        matrix._data[14] = position.z;
+        m._data[12] = position.x;
+        m._data[13] = position.y;
+        m._data[14] = position.z;
 
-        return matrix;
+        return m;
     }
 
     /**
@@ -100,6 +89,7 @@ export class Matrix4x4 {
      * Creates a rotation matrix on the Y axis from the provided angle in radians.
      * @param {number} angleInRadians The angle in radians.
      * @return {Matrix4x4}
+     *
      */
     public static rotationY(angleInRadians: number): Matrix4x4 {
         const m = new Matrix4x4();
@@ -166,9 +156,9 @@ export class Matrix4x4 {
     }
 
     /**
-     * Multyply to matrixes
-     * @param {Matrix4x4} a
-     * @param {Matrix4x4} b
+     * Multiplies matrix a by matrix b and returns the result.
+     * @param {Matrix4x4} a The first matrix.
+     * @param {Matrix4x4} b The second matrix.
      * @return {Matrix4x4}
      */
     public static multiply(a: Matrix4x4, b: Matrix4x4): Matrix4x4 {
@@ -227,18 +217,17 @@ export class Matrix4x4 {
         return m;
     }
 
-    /**
-    * transforms x, y, z to toFloat32Array
-    * @return {number}
-    */
+    /** Returns the data of this matrix as a Float32Array.
+     * @return {Float32Array}
+     */
     public toFloat32Array(): Float32Array {
         return new Float32Array(this._data);
     }
 
     /**
-    * Creates a copy of matrix m.
-    * @param {Matrix4x4} m The matrix to copy.
-    */
+     * Creates a copy of matrix m.
+     * @param {Matrix4x4} m The matrix to copy.
+     */
     public copyFrom(m: Matrix4x4): void {
         for (let i = 0; i < 16; ++i) {
             this._data[i] = m._data[i];

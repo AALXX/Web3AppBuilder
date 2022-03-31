@@ -1,21 +1,23 @@
-import { gl } from '../GL/GLUtilities';
-import { Shaders } from '../GL/Shaders';
-import { WebGlBuffer, AttributeInfo } from '../GL/WebGlBuffer';
+import { AttributeInfo, GLBuffer } from '../GL/WebGlBuffer';
 import { Matrix4x4 } from '../Math/Matrix4x4';
+import { Vector3 } from '../Math/Vector3';
 import { Material } from './Material/Material';
 import { MaterialManager } from './Material/MaterialManager';
+import { Vertex } from './Vertex';
 
 /**
  * Sprite Class
  */
 export class Sprite {
-    private _name: string;
-    private _width: number;
-    private _height: number;
+    protected _name: string;
+    protected _width: number;
+    protected _height: number;
+    protected _origin: Vector3 = Vector3.zero;
 
-    private _buffer: WebGlBuffer;
-    private _materialName: string;
-    private _material: Material;
+    protected _buffer: GLBuffer;
+    protected _materialName: string;
+    protected _material: Material;
+    protected _vertices: Vertex[] = [];
 
     /**
      * Class Constructor
@@ -40,77 +42,126 @@ export class Sprite {
     }
 
     /**
+     * origin accessor
+     */
+    public get origin(): Vector3 {
+        return this._origin;
+    }
+
+    /**
+     * origin setter
+     * @param {Vector3} value
+     */
+    public set origin(value: Vector3) {
+        this._origin = value;
+        this.recalculateVertices();
+    }
+
+    /**
      * Destroy Sprite
      */
     public destroy(): void {
-        this._buffer.destroy();
-        MaterialManager.releaseMaterial(this._materialName);
-        this._material = undefined;
-        this._materialName = undefined;
+        if (this._buffer) {
+            this._buffer.destroy();
+        }
+        if (this._material) {
+            MaterialManager.releaseMaterial(this._materialName);
+            this._material = undefined;
+            this._materialName = undefined;
+        }
     }
 
     /**
      * Load Method
      */
     public load(): void {
-        this._buffer = new WebGlBuffer(5);
+        this._buffer = new GLBuffer();
 
         const positionAttribute = new AttributeInfo();
         positionAttribute.location = 0;
-        positionAttribute.offset = 0;
         positionAttribute.size = 3;
         this._buffer.addAttributeLocation(positionAttribute);
 
         const texCoordAttribute = new AttributeInfo();
         texCoordAttribute.location = 1;
-        texCoordAttribute.offset = 3;
         texCoordAttribute.size = 2;
         this._buffer.addAttributeLocation(texCoordAttribute);
 
-        const vertices = [
-            // x,y,z   ,u, v
-            0, 0, 0, 0, 0,
-            0, this._height, 0, 0, 1.0,
-            this._width, this._height, 0, 1.0, 1.0,
-
-            this._width, this._height, 0, 1.0, 1.0,
-            this._width, 0, 0, 1.0, 0,
-            0, 0, 0, 0, 0,
-        ];
-
-        this._buffer.pushBackData(vertices);
-        this._buffer.upload();
-        this._buffer.unBind();
+        this.calculateVertices();
     }
 
     /**
-     * update Met
+     * update Method
      * @param {number} time
      */
-    public update(time: number): void {
-
-    }
+    public update(time: number): void {}
 
     /**
      * Draw Method
-     * @param {Shaders} shader
      * @param {Matrix4x4} model
+     * @param {Matrix4x4} view
+     * @param {Matrix4x4} projection
      */
-    public draw(shader: Shaders, model: Matrix4x4): void {
-        const ModelLocation = shader.getUniformLocation('u_model');
-        gl.uniformMatrix4fv(ModelLocation, false, model.toFloat32Array());
-
-        //* Set Uniforms
-        const ColorLocation = shader.getUniformLocation('u_tint');
-        gl.uniform4fv(ColorLocation, this._material.tint.toFloat32Array());
-
-        if (this._material.diffuseTexture !== undefined) {
-            this._material.diffuseTexture.activateAndBind(0);
-            const diffuseLocation = shader.getUniformLocation('u_diffuse');
-            gl.uniform1i(diffuseLocation, 0);
-        }
-
+    public draw(model: Matrix4x4, view: Matrix4x4, projection: Matrix4x4): void {
+        // console.log(this._material);
+        this._material.apply(model, view, projection);
         this._buffer.bind();
         this._buffer.draw();
+    }
+
+    /**
+     * ir calculates vertices
+     */
+    protected calculateVertices(): void {
+        const minX = -(this._width * this._origin.x);
+        const maxX = this._width * (1.0 - this._origin.x);
+
+        const minY = -(this._height * this._origin.y);
+        const maxY = this._height * (1.0 - this._origin.y);
+
+        this._vertices = [
+            // x,y,z   ,u, v
+            new Vertex(minX, minY, 0, 0, 0),
+            new Vertex(minX, maxY, 0, 0, 1.0),
+            new Vertex(maxX, maxY, 0, 1.0, 1.0),
+
+            new Vertex(maxX, maxY, 0, 1.0, 1.0),
+            new Vertex(maxX, minY, 0, 1.0, 0),
+            new Vertex(minX, minY, 0, 0, 0),
+        ];
+
+        for (const v of this._vertices) {
+            this._buffer.pushBackData(v.toArray());
+        }
+
+        this._buffer.upload();
+        this._buffer.unbind();
+    }
+
+    /**
+     * it recalcuates vertices
+     */
+    protected recalculateVertices(): void {
+        const minX = -(this._width * this._origin.x);
+        const maxX = this._width * (1.0 - this._origin.x);
+
+        const minY = -(this._height * this._origin.y);
+        const maxY = this._height * (1.0 - this._origin.y);
+
+        this._vertices[0].position.set(minX, minY);
+        this._vertices[1].position.set(minX, maxY);
+        this._vertices[2].position.set(maxX, maxY);
+
+        this._vertices[3].position.set(maxX, maxY);
+        this._vertices[4].position.set(maxX, minY);
+        this._vertices[5].position.set(minX, minY);
+
+        this._buffer.clearData();
+        for (const v of this._vertices) {
+            this._buffer.pushBackData(v.toArray());
+        }
+
+        this._buffer.upload();
+        this._buffer.unbind();
     }
 }

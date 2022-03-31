@@ -22,13 +22,10 @@ export class TextureReferenceNode {
 export class TextureManager {
     private static _textures: { [name: string]: TextureReferenceNode } = {}; //* textures dictionary
 
-
     /**
      * class constructor
      */
-    private constructor() {
-
-    }
+    private constructor() {}
 
     /**
      * Get texture
@@ -50,7 +47,7 @@ export class TextureManager {
      * It realeasees the Texture
      * @param {string} textureName
      */
-    public static realeaseTexture(textureName: string): void {
+    public static releaseTexture(textureName: string): void {
         if (TextureManager._textures[textureName] === undefined) {
             console.warn(`A texture named ${textureName} does not exist and therefore cannot be released.`);
         } else {

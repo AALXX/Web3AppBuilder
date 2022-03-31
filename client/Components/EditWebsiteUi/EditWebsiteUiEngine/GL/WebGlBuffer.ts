@@ -1,52 +1,56 @@
 import { gl } from './GLUtilities';
 
 /**
- * the information needed for WebGlBuffer
+ * AttributeInfo class
  */
 export class AttributeInfo {
-    //* location of the attribute
+    /**
+     * The location of this attribute.
+     */
     public location: number;
 
-    //* the size (numb of elemets) in the atribute
+    /**
+     * The size (number of elements) in this attribute (i.e Vector3 = 3).
+     */
     public size: number;
 
-    //* The number of elements from the begnening of the buffer
-    public offset: number;
+    /**
+     * The number of elements from the beginning of the buffer.
+     */
+    public offset: number = 0;
 }
 
 /**
- * WebGL Buffer
- */
-export class WebGlBuffer {
+ * Represents a WebGL buffer.
+ * */
+export class GLBuffer {
     private _hasAttributeLocation: boolean = false;
     private _elementSize: number;
-    private _stide: number;
+    private _stride: number;
     private _buffer: WebGLBuffer;
 
     private _targetBufferType: number;
     private _dataType: number;
-    private _drawingMode: number;
+    private _mode: number;
     private _typeSize: number;
 
     private _data: number[] = [];
     private _attributes: AttributeInfo[] = [];
 
-
     /**
-     * Create a new WebGl Buffer
-     * @param {number} elementSize
-     * @param {number} dataType
-     * @param {number} targetBufferType
-     * @param {number} drawingMode
+     * Creates a new GL buffer.
+     * @param {number} dataType The data type of this buffer. Default: gl.FLOAT
+     * @param {number} targetBufferType The buffer target type. Can be either gl.ARRAY_BUFFER or gl.ELEMENT_ARRAY_BUFFER. Default: gl.ARRAY_BUFFER
+     * @param {number} mode The drawing mode of this buffer. (i.e. gl.TRIANGLES or gl.LINES). Default: gl.TRIANGLES
      */
-    public constructor(elementSize: number, dataType: number = gl.FLOAT, targetBufferType: number = gl.ARRAY_BUFFER, drawingMode: number = gl.TRIANGLES) {
-        this._elementSize = elementSize;
+    public constructor(dataType: number = gl.FLOAT, targetBufferType: number = gl.ARRAY_BUFFER, mode: number = gl.TRIANGLES) {
+        this._elementSize = 0;
         this._dataType = dataType;
         this._targetBufferType = targetBufferType;
-        this._drawingMode = drawingMode;
+        this._mode = mode;
 
-        //* Determine byte size
         /* eslint-disable */
+        // Determine byte size
         switch (this._dataType) {
             case gl.FLOAT:
             case gl.INT:
@@ -62,59 +66,93 @@ export class WebGlBuffer {
                 this._typeSize = 1;
                 break;
             default:
-                throw new Error(`Unrecognized dataType: ${dataType.toString()}`);
+                throw new Error('Unrecognized data type: ' + dataType.toString());
         }
         /* eslint-enable */
 
-        this._stide = this._elementSize * this._typeSize;
         this._buffer = gl.createBuffer();
     }
 
-    //* Destroys the buffer
-    public destroy = (): void => {
+    /**
+     * Destroys this buffer.
+     * */
+    public destroy(): void {
         gl.deleteBuffer(this._buffer);
-    };
+    }
 
-    //* Bindes the buffer
-    public bind = (normalized: boolean = false): void => {
+    /**
+     * Binds this buffer.
+     * @param {boolean} normalized Indicates if the data should be normalized. Default: false
+     */
+    public bind(normalized: boolean = false): void {
         gl.bindBuffer(this._targetBufferType, this._buffer);
+
         if (this._hasAttributeLocation) {
             for (const it of this._attributes) {
-                gl.vertexAttribPointer(it.location, it.size, this._dataType, normalized, this._stide, it.offset * this._typeSize);
+                gl.vertexAttribPointer(it.location, it.size, this._dataType, normalized, this._stride, it.offset * this._typeSize);
                 gl.enableVertexAttribArray(it.location);
             }
         }
-    };
+    }
 
-    //* unBindes The buffer
-    public unBind = (): void => {
+    /**
+     * Unbinds this buffer.
+     * */
+    public unbind(): void {
         for (const it of this._attributes) {
             gl.disableVertexAttribArray(it.location);
         }
 
-        gl.bindBuffer(this._targetBufferType, this._buffer);
-    };
+        gl.bindBuffer(this._targetBufferType, undefined);
+    }
 
-    //* Adds an atribute with given info to buffer
-    public addAttributeLocation = (info: AttributeInfo): void => {
+    /**
+     * Adds an attribute with the provided information to this buffer.
+     * @param {AttributeInfo} info The information to be added.
+     */
+    public addAttributeLocation(info: AttributeInfo): void {
         this._hasAttributeLocation = true;
+        info.offset = this._elementSize;
         this._attributes.push(info);
-    };
+        this._elementSize += info.size;
+        this._stride = this._elementSize * this._typeSize;
+    }
 
-    //* Add data to this buffer
-    public pushBackData = (data: number[]): void => {
+    /**
+     * Replaces the current data in this buffer with the provided data.
+     * @param {number} data The data to be loaded in this buffer.
+     */
+    public setData(data: number[]): void {
+        this.clearData();
+        this.pushBackData(data);
+    }
+
+    /**
+     * Adds data to this buffer.
+     * @param {number} data
+     */
+    public pushBackData(data: number[]): void {
         for (const d of data) {
             this._data.push(d);
         }
-    };
+    }
 
-    //* Upload buffer data to gpu
-    public upload = (): void => {
+    /**
+     * Clears out all data in this buffer.
+     * */
+    public clearData(): void {
+        this._data.length = 0;
+    }
+
+    /**
+     * Uploads this buffer's data to the GPU.
+     * */
+    public upload(): void {
         gl.bindBuffer(this._targetBufferType, this._buffer);
 
         let bufferData: ArrayBuffer;
-
         /* eslint-disable */
+
         switch (this._dataType) {
             case gl.FLOAT:
                 bufferData = new Float32Array(this._data);
@@ -140,16 +178,17 @@ export class WebGlBuffer {
         }
         /* eslint-enable */
 
-
         gl.bufferData(this._targetBufferType, bufferData, gl.STATIC_DRAW);
-    };
+    }
 
-    //* Draw this buffer
-    public draw = (): void => {
+    /**
+     * Draws this buffer.
+     * */
+    public draw(): void {
         if (this._targetBufferType === gl.ARRAY_BUFFER) {
-            gl.drawArrays(this._drawingMode, 0, this._data.length / this._elementSize);
+            gl.drawArrays(this._mode, 0, this._data.length / this._elementSize);
         } else if (this._targetBufferType === gl.ELEMENT_ARRAY_BUFFER) {
-            gl.drawElements(this._drawingMode, this._data.length, this._dataType, 0);
+            gl.drawElements(this._mode, this._data.length, this._dataType, 0);
         }
-    };
+    }
 }

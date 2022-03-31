@@ -98,52 +98,74 @@ export class Color {
     }
 
     /**
-    * RGBA to Float Array
-    * @return {number[]}
-    */
+     * RGBA to Float Array
+     * @return {number[]}
+     */
     public toFloatArray(): number[] {
         return [this._r / 255.0, this._g / 255.0, this._b / 255.0, this._a / 255.0];
     }
 
     /**
-    * RGBA to Float Array
-    * @return {number[]}
-    */
+     * RGBA to Float Array
+     * @return {number[]}
+     */
     public toFloat32Array(): Float32Array {
         return new Float32Array(this.toFloatArray());
     }
 
+    /**
+     * Creates a new color from the provided JSON.
+     * @param {any} json The JSON to create from.
+     * @return {Color}
+     */
+    public static fromJson(json: any): Color {
+        const c = new Color();
+        if (json.r !== undefined) {
+            c.r = Number(json.r);
+        }
+        if (json.g !== undefined) {
+            c.g = Number(json.g);
+        }
+        if (json.b !== undefined) {
+            c.b = Number(json.b);
+        }
+        if (json.a !== undefined) {
+            c.a = Number(json.a);
+        }
+        return c;
+    }
+
     /** White Color ShortCut
      * @return {Color}
-    */
+     */
     public static white(): Color {
         return new Color(255, 255, 255, 255);
     }
 
     /** White Color ShortCut
-    * @return {Color}
-    */
+     * @return {Color}
+     */
     public static black(): Color {
         return new Color(0, 0, 0, 255);
     }
 
     /** Red Color ShortCut
-    * @return {Color}
-    */
+     * @return {Color}
+     */
     public static red(): Color {
         return new Color(255, 0, 0, 255);
     }
 
     /** Green Color ShortCut
-    * @return {Color}
-    */
+     * @return {Color}
+     */
     public static green(): Color {
         return new Color(0, 255, 0, 255);
     }
 
     /** Blue Color ShortCut
-    * @return {Color}
-    */
+     * @return {Color}
+     */
     public static blue(): Color {
         return new Color(0, 0, 255, 255);
     }

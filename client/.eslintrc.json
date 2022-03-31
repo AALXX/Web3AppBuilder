@@ -13,6 +13,8 @@
         "sourceType": "module"
     },
     "plugins": ["react", "@typescript-eslint"],
+    "ignorePatterns": ["postcss.config.js", "tailwind.config.js"],
+
     "rules": {
         // Indent with 4 spaces
         "indent": ["error", 4],
@@ -21,7 +23,7 @@
         // Indent props with 4 spaces
         "react/jsx-indent-props": ["error", 4],
         // max line lenght
-        "max-len": ["error", {"code": 220}],
+        "max-len": ["error", { "code": 220 }],
         "object-curly-spacing": ["error", "always"]
     },
 

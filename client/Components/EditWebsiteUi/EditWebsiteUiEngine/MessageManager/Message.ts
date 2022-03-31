@@ -1,18 +1,17 @@
 import { MessageBus } from './MessageBus';
 import { IMessageHandler } from './IMessageHandler';
+import { MessageCallback } from './MessageSubscriptionNode';
 
 /** Represents message priorities. */
 export enum MessagePriority {
-
     /** Normal message priority, meaning the message is sent as soon as the queue allows. */
     NORMAL,
 
     /** High message priority, meaning the message is sent immediately. */
-    HIGH
+    HIGH,
 }
-/**
- * Message Class
- */
+
+/** Represents a message which can be sent and processed across the system. */
 export class Message {
     /** The code for this message, which is subscribed to and listened for. */
     public code: string;
@@ -27,11 +26,11 @@ export class Message {
     public priority: MessagePriority;
 
     /**
-     * Class Constructor
-     * @param {string} code
-     * @param {any} sender
-     * @param {any} context
-     * @param {MessagePriority} priority
+     * Creates a new message.
+     * @param {string} code The code for this message, which is subscribed to and listened for.
+     * @param {any} sender The class instance which sent this message.
+     * @param {any} context Free-form context data to be included with this message.
+     * @param {MessagePriority} priority The priority of this message.
      */
     public constructor(code: string, sender: any, context?: any, priority: MessagePriority = MessagePriority.NORMAL) {
         this.code = code;
@@ -41,21 +40,21 @@ export class Message {
     }
 
     /**
-    * Sends a normal-priority message with the provided parameters.
-    * @param {string} code The code for this message, which is subscribed to and listened for.
-    * @param {any} sender The class instance which sent this message.
-    * @param {any} context Free-form context data to be included with this message.
-    */
+     * Sends a normal-priority message with the provided parameters.
+     * @param {string} code The code for this message, which is subscribed to and listened for.
+     * @param {any} sender The class instance which sent this message.
+     * @param {any} context Free-form context data to be included with this message.
+     */
     public static send(code: string, sender: any, context?: any): void {
         MessageBus.post(new Message(code, sender, context, MessagePriority.NORMAL));
     }
 
     /**
-    * Sends a normal-priority message with the provided parameters.
-    * @param {string} code The code for this message, which is subscribed to and listened for.
-    * @param {any} sender The class instance which sent this message.
-    * @param {any} context Free-form context data to be included with this message.
-    */
+     * Sends a high-priority message with the provided parameters.
+     * @param {string} code The code for this message, which is subscribed to and listened for.
+     * @param {any} sender The class instance which sent this message.
+     * @param {any} context Free-form context data to be included with this message.
+     */
     public static sendPriority(code: string, sender: any, context?: any): void {
         MessageBus.post(new Message(code, sender, context, MessagePriority.HIGH));
     }
@@ -66,15 +65,33 @@ export class Message {
      * @param {IMessageHandler} handler The message handler to be called when a message containing the provided code is sent.
      */
     public static subscribe(code: string, handler: IMessageHandler): void {
-        MessageBus.addSubscrition(code, handler);
+        MessageBus.addSubscription(code, handler, undefined);
+    }
+
+    /**
+     * Subscribes the provided callback to listen for the message code provided.
+     * @param {string} code The code to listen for.
+     * @param {MessageCallback} callback The message callback to be invoked when a message containing the provided code is sent.
+     */
+    public static subscribeCallback(code: string, callback: MessageCallback): void {
+        MessageBus.addSubscription(code, undefined, callback);
     }
 
     /**
      * Unsubscribes the provided handler from listening for the message code provided.
      * @param {string} code The code to no longer listen for.
-     * @param {IMessageHandler} handler The message handler to unsubscribe.
+     * @param {MessageCallback} handler The message handler to unsubscribe.
      */
     public static unsubscribe(code: string, handler: IMessageHandler): void {
-        MessageBus.removeSubscrition(code, handler);
+        MessageBus.removeSubscription(code, handler, undefined);
+    }
+
+    /**
+     * Unsubscribes the provided callback from listening for the message code provided.
+     * @param {string} code The code to no longer listen for.
+     * @param {MessageCallback} callback The message callback to unsubscribe.
+     */
+    public static unsubscribeCallback(code: string, callback: MessageCallback): void {
+        MessageBus.removeSubscription(code, undefined, callback);
     }
 }
