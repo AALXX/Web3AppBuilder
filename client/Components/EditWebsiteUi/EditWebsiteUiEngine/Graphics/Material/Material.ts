@@ -7,6 +7,7 @@ import { MaterialConfig } from './MaterialManager';
 import { Matrix4x4 } from '../../Math/Matrix4x4';
 
 /** A material represents surface information which is used during rendering. */
+/** A material represents surface information which is used during rendering. */
 export class Material {
     private _name: string;
     private _diffuseTextureName: string;
@@ -40,7 +41,6 @@ export class Material {
      */
     public static fromConfig(config: MaterialConfig): Material {
         const name = config.shader ? config.shader : BuiltinShader.BASIC;
-        // eslint-disable-next-line new-cap
         const shader = ShaderManager.getShader(name);
         if (shader === undefined) {
             throw new Error('Unable to create material using material named ${name} as it is undefined.');

@@ -102,7 +102,7 @@ export class SpriteComponent extends BaseComponent {
     }
 
     /**
-     * REnder method
+     * Render method
      * @param {RenderView} renderView
      */
     public render(renderView: RenderView): void {

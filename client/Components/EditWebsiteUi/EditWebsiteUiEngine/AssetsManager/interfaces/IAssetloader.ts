@@ -1,3 +1,4 @@
+/** Represents an asset loader. */
 export interface IAssetLoader {
     /** The extensions supported by this asset loader. */
     readonly supportedExtensions: string[];

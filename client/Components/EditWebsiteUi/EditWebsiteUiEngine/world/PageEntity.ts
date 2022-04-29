@@ -119,7 +119,6 @@ export class PageEntity extends TObject {
     /** Performs loading procedures on this entity. */
     public load(): void {
         this._isLoaded = true;
-        console.log('cum');
         // console.log(this._config);
 
         // for (const c of this._config) {

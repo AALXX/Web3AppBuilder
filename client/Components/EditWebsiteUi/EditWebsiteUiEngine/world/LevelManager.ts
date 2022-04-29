@@ -87,8 +87,8 @@ export class LevelManager {
      * @param {JsonAsset} asset
      */
     private static loadLevel(asset: JsonAsset): void {
-        console.log('Loading level:' + asset.name);
-        const data = asset.data;
+        console.log('Loading level:' + asset.Name);
+        const data = asset.Data;
 
         let levelName: string;
         if (data.name === undefined) {
@@ -115,13 +115,13 @@ export class LevelManager {
      * @param {JsonAsset} asset
      */
     private static processLevelConfigAsset(asset: JsonAsset): void {
-        const levels = asset.data.levels;
-        if (levels) {
-            for (const level of levels) {
-                if (level.name !== undefined && level.file !== undefined) {
-                    LevelManager._registeredLevels[level.name] = String(level.file);
+        const pages = asset.Data.pages;
+        if (pages) {
+            for (const page of pages) {
+                if (page.name !== undefined && page.file !== undefined) {
+                    LevelManager._registeredLevels[page.name] = String(page.file);
                 } else {
-                    throw new Error('Invalid level config file format: name or file is missing');
+                    throw new Error('Invalid page config file format: name or file is missing');
                 }
             }
         }

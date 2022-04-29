@@ -3,13 +3,16 @@ import { Texture } from './Texture';
 /**
  * Texture Reference Node class
  */
-export class TextureReferenceNode {
+class TextureReferenceNode {
+    /** The referenced Texture. */
     public texture: Texture;
+
+    /** The number of times the Texture is referenced. Default is 1 because this is only created when a Texture is needed. */
     public referenceCount: number = 1;
 
     /**
-     * class construcort
-     * @param {Texture} texture
+     * Creates a new TextureReferenceNode.
+     * @param {Texture} texture The Texture to be referenced.
      */
     public constructor(texture: Texture) {
         this.texture = texture;

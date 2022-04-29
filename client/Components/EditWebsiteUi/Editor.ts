@@ -16,8 +16,8 @@ export class Editor implements IEditor {
     public start(): void {
         this.events = new EngineEvents();
 
-        // console.log('CUM');
         this.events.listenToEvents('changeMatColor');
+        this.events.listenToEvents('changeMatTexture');
     }
 
     /**
@@ -26,7 +26,7 @@ export class Editor implements IEditor {
      */
     public updateReady(): void {
         // Load the test level. This should be configurable.
-        LevelManager.changeLevel('test 1');
+        LevelManager.changeLevel('page Test 1');
     }
 
     /**

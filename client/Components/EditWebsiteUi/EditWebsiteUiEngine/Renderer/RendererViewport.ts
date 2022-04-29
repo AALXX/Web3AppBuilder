@@ -235,7 +235,7 @@ export class RendererViewport {
             this._projection = Matrix4x4.orthographic(this._x, this._width, this._height, this._y, this._nearClip, this._farClip);
         } else {
             console.log('Not Supported');
-            // this._projection = Matrix4x4.perspective(this._fov, this._width / this._height, this._nearClip, this._farClip);
+            this._projection = Matrix4x4.perspective(this._fov, this._width / this._height, this._nearClip, this._farClip);
         }
         this._isDirty = false;
     }

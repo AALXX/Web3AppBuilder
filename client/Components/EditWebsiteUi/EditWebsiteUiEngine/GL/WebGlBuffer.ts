@@ -1,8 +1,11 @@
 import { gl } from './GLUtilities';
 
 /**
- * AttributeInfo class
- */
+ * Represents the information needed for a GLBuffer attribute.
+ * */
+/**
+ * Represents the information needed for a GLBuffer attribute.
+ * */
 export class AttributeInfo {
     /**
      * The location of this attribute.
@@ -49,8 +52,9 @@ export class GLBuffer {
         this._targetBufferType = targetBufferType;
         this._mode = mode;
 
-        /* eslint-disable */
         // Determine byte size
+        /* eslint-disable */
+
         switch (this._dataType) {
             case gl.FLOAT:
             case gl.INT:
@@ -68,6 +72,7 @@ export class GLBuffer {
             default:
                 throw new Error('Unrecognized data type: ' + dataType.toString());
         }
+
         /* eslint-enable */
 
         this._buffer = gl.createBuffer();
@@ -120,7 +125,7 @@ export class GLBuffer {
 
     /**
      * Replaces the current data in this buffer with the provided data.
-     * @param {number} data The data to be loaded in this buffer.
+     * @param {number[]} data The data to be loaded in this buffer.
      */
     public setData(data: number[]): void {
         this.clearData();
@@ -129,7 +134,7 @@ export class GLBuffer {
 
     /**
      * Adds data to this buffer.
-     * @param {number} data
+     * @param {number[]} data
      */
     public pushBackData(data: number[]): void {
         for (const d of data) {

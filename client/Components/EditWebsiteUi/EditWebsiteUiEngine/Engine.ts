@@ -7,16 +7,16 @@ import { CollisionManager } from './collision/collisionManager';
 import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { ComponentManager } from './Components/ComponentsManager';
 import { SpriteComponentBuilder } from './Components/spriteComponent';
+import { TextComponentBuilder } from './Components/TextComponent';
 import { PageComponentBuilder } from './document_page/page';
 import { PageManager } from './document_page/PageManager';
 import { gl } from './GL/GLUtilities';
 // import { CollisionComponentBuilder } from './Components/collisionComponent';
 import { MaterialManager } from './Graphics/Material/MaterialManager';
 import { ShaderManager } from './Graphics/ShaderManager';
+import { BitmapFontManager } from './Graphics/Text/bitmapFontManager';
 import { IEditor } from './IEditor';
 import { InputManager } from './Input/InputManager';
-import { IMessageHandler } from './MessageManager/IMessageHandler';
-import { Message } from './MessageManager/Message';
 import { MessageBus } from './MessageManager/MessageBus';
 import { Renderer } from './Renderer/Renderer';
 import { RendererViewportCreateInfo, ViewportProjectionType } from './Renderer/RendererViewport';
@@ -25,7 +25,7 @@ export namespace UiDesignEngine {
     /**
      ** Engine Class
      */
-    export class Engine implements IMessageHandler {
+    export class Engine {
         private _previousTime: number = 0;
         private _editorWidth: number;
         private _editorHeight: number;
@@ -92,12 +92,14 @@ export namespace UiDesignEngine {
             InputManager.initialize(this._renderer.windowViewportCanvas);
 
             // Load fonts
-            // BitmapFontManager.load();
+            BitmapFontManager.load();
 
             /**
              * component buider
              */
             ComponentManager.registerBuilder(new SpriteComponentBuilder());
+
+            ComponentManager.registerBuilder(new TextComponentBuilder());
 
             ComponentManager.registerBuilder(new CollisionComponentBuilder());
 
@@ -125,7 +127,6 @@ export namespace UiDesignEngine {
             // Begin the preloading phase, which waits for various thing to be loaded before starting the game.
             this.preloading();
 
-            //* perfom editor start function
             this._editor.start();
         }
 
@@ -136,10 +137,10 @@ export namespace UiDesignEngine {
             // Make sure to always update the message bus.
             MessageBus.update(0);
 
-            // if (!BitmapFontManager.isLoaded) {
-            //     requestAnimationFrame(this.preloading.bind(this));
-            //     return;
-            // }
+            if (!BitmapFontManager.isLoaded) {
+                requestAnimationFrame(this.preloading.bind(this));
+                return;
+            }
 
             if (!MaterialManager.isLoaded) {
                 requestAnimationFrame(this.preloading.bind(this));
@@ -159,12 +160,6 @@ export namespace UiDesignEngine {
         }
 
         /**
-         * on message recived
-         * @param {Message} message
-         */
-        public onMessage(message: Message): void {}
-
-        /**
          * main game loop
          */
         private loop(): void {
@@ -180,6 +175,7 @@ export namespace UiDesignEngine {
 
             requestAnimationFrame(this.loop.bind(this));
         }
+
         /**
          * Update Method
          * @param {number} delta
@@ -189,8 +185,8 @@ export namespace UiDesignEngine {
             if (LevelManager.isLoaded && LevelManager.activeLevel !== undefined && LevelManager.activeLevel.isLoaded) {
                 LevelManager.activeLevel.update(delta);
             }
-
             CollisionManager.update(delta);
+
             this._editor.update(delta);
         }
 

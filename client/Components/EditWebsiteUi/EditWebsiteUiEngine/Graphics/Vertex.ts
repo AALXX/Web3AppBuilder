@@ -29,9 +29,8 @@ export class Vertex {
         this.texCoords.y = tv;
     }
 
-    /**
-     * Returns the data of this vertex as an array of numbers.
-     * @return {number}
+    /** Returns the data of this vertex as an array of numbers.
+     * @return {number[]}
      */
     public toArray(): number[] {
         let array: number[] = [];
@@ -41,9 +40,9 @@ export class Vertex {
 
         return array;
     }
-    /**
-     * Returns the data of this vertex as a Float32Array.
-     * @return {FlatArray}
+
+    /** Returns the data of this vertex as a Float32Array.
+     * @return {Float32Array}
      */
     public toFloat32Array(): Float32Array {
         return new Float32Array(this.toArray());

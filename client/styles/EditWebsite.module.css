@@ -1,5 +1,3 @@
-
-
 .PageContainer {
     display: flex;
     flex-direction: row;
@@ -42,4 +40,3 @@
     background-color: #505050;
     margin-left: auto;
 }
-

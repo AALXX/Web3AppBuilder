@@ -10,12 +10,16 @@ export class EngineEvents implements IEditorEvents {
      * @param {any} data
      */
     private changeMaterialColor(data: any): void {
-        // console.log(data);
-
         MaterialManager.changeMaterial(data.name, { r: data.r, g: data.g, b: data.b, a: 255 });
+    }
 
-        // const material = MaterialManager.getMaterial('wood');
-        // console.log(material);
+    /**
+     * change mat color
+     * @param {any} data
+     */
+    private changeMaterialTexture(data: any): void {
+        console.log(data);
+        MaterialManager.changeMaterial(data.name, null, data.newTexture);
     }
 
     /**
@@ -29,6 +33,11 @@ export class EngineEvents implements IEditorEvents {
             case 'changeMatColor':
                 window.addEventListener('changeMatColor', (e: any) => {
                     this.changeMaterialColor(e.detail);
+                });
+                break;
+            case 'changeMatTexture':
+                window.addEventListener('changeMatTexture', (e: any) => {
+                    this.changeMaterialTexture(e.detail);
                 });
                 break;
 

@@ -155,7 +155,7 @@ export class CollisionComponent extends BaseComponent {
      * @param {CollisionComponent} other
      */
     public onCollisionEntry(other: CollisionComponent): void {
-        console.log('onCollisionEntry:', this, other);
+        // console.log('onCollisionEntry:', this, other);
     }
 
     /**
@@ -163,7 +163,7 @@ export class CollisionComponent extends BaseComponent {
      * @param {CollisionComponent} other
      */
     public onCollisionUpdate(other: CollisionComponent): void {
-        console.log('onCollisionUpdate:', this, other);
+        // console.log('onCollisionUpdate:', this, other);
     }
 
     /**
@@ -171,7 +171,7 @@ export class CollisionComponent extends BaseComponent {
      * @param {CollisionComponent} other
      */
     public onCollisionExit(other: CollisionComponent): void {
-        console.log('onCollisionExit:', this, other);
+        // console.log('onCollisionExit:', this, other);
     }
 
     /**

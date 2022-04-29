@@ -50,7 +50,7 @@ export abstract class Shaders {
     /**
      * get Matrix4x4 uniform
      * @param {string} uniformName
-     * @param {Matrix4x4} matrix
+     * @param {Matrifx4x4} matrix
      */
     public setUniformMatrix4x4(uniformName: string, matrix: Matrix4x4): void {
         if (this._uniforms[uniformName] === undefined) {
@@ -69,7 +69,7 @@ export abstract class Shaders {
      */
     public setUniformColor(uniformName: string, color: Color): void {
         if (this._uniforms[uniformName] === undefined) {
-            console.warn(`Unable to find uniform named '${uniformName}' in Shaders named '${this._name}'`);
+            console.warn(`Unable to find uniform named '${uniformName}' in shader named '${this._name}'`);
             return;
         }
 
@@ -84,7 +84,7 @@ export abstract class Shaders {
      */
     public setUniformInt(uniformName: string, value: number): void {
         if (this._uniforms[uniformName] === undefined) {
-            console.warn(`Unable to find uniform named '${uniformName}' in Shaders named '${this._name}'`);
+            console.warn(`Unable to find uniform named '${uniformName}' in shader named '${this._name}'`);
             return;
         }
 
@@ -99,7 +99,7 @@ export abstract class Shaders {
      */
     public getAttributeLocation(name: string): number {
         if (this._attributes[name] === undefined) {
-            throw new Error(`Unable to find attribute named '${name}' in Shaders named '${this._name}'`);
+            throw new Error(`Unable to find attribute named '${name}' in shader named '${this._name}'`);
         }
 
         return this._attributes[name];
@@ -112,7 +112,7 @@ export abstract class Shaders {
      */
     public getUniformLocation(name: string): WebGLUniformLocation {
         if (this._uniforms[name] === undefined) {
-            throw new Error(`Unable to find uniform named '${name}' in Shaders named '${this._name}'`);
+            throw new Error(`Unable to find uniform named '${name}' in shader named '${this._name}'`);
         }
 
         return this._uniforms[name];
@@ -129,10 +129,10 @@ export abstract class Shaders {
      * @param {string} fragmentSource The fragment source.
      */
     protected load(vertexSource: string, fragmentSource: string): void {
-        const vertexShaders = this.loadShaders(vertexSource, gl.VERTEX_SHADER);
-        const fragmentShaders = this.loadShaders(fragmentSource, gl.FRAGMENT_SHADER);
+        const vertexShader = this.loadShaders(vertexSource, gl.VERTEX_SHADER);
+        const fragmentShader = this.loadShaders(fragmentSource, gl.FRAGMENT_SHADER);
 
-        this.createProgram(vertexShaders, fragmentShaders);
+        this.createProgram(vertexShader, fragmentShader);
 
         this.detectAttributes();
         this.detectUniforms();
@@ -141,33 +141,32 @@ export abstract class Shaders {
     /**
      * load shaders
      * @param {string} source
-     * @param {number} ShadersType
+     * @param {number} shaderType
      * @return {WebGLShader}
      */
-    private loadShaders(source: string, ShadersType: number): WebGLShader {
-        const Shaders: WebGLShader = gl.createShader(ShadersType);
+    private loadShaders(source: string, shaderType: number): WebGLShader {
+        const shader: WebGLShader = gl.createShader(shaderType);
 
-        gl.shaderSource(Shaders, source);
-        gl.compileShader(Shaders);
-        const error = gl.getShaderInfoLog(Shaders).trim();
-
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        const error = gl.getShaderInfoLog(shader).trim();
         if (error !== '') {
             throw new Error(`Error compiling Shaders: "${this._name}"': "${error}"`);
         }
 
-        return Shaders;
+        return shader;
     }
 
     /**
      * create shader program
-     * @param {WebGLShader} vertexShaders
-     * @param {WebGLShader} fragmentShaders
+     * @param {WebGLShader} vertexShader
+     * @param {WebGLShader} fragmentShader
      */
-    private createProgram(vertexShaders: WebGLShader, fragmentShaders: WebGLShader): void {
+    private createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader): void {
         this._program = gl.createProgram();
 
-        gl.attachShader(this._program, vertexShaders);
-        gl.attachShader(this._program, fragmentShaders);
+        gl.attachShader(this._program, vertexShader);
+        gl.attachShader(this._program, fragmentShader);
 
         gl.linkProgram(this._program);
 

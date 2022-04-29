@@ -8,6 +8,9 @@ import { Vertex } from './Vertex';
 /**
  * Sprite Class
  */
+/**
+ * Represents a 2-dimensional sprite which is drawn on the screen.
+ * */
 export class Sprite {
     protected _name: string;
     protected _width: number;
@@ -20,11 +23,11 @@ export class Sprite {
     protected _vertices: Vertex[] = [];
 
     /**
-     * Class Constructor
-     * @param {string} name
-     * @param {string} materialName
-     * @param {number} width
-     * @param {number} height
+     * Creates a new sprite.
+     * @param {string} name The name of this sprite.
+     * @param {string} materialName The name of the material to use with this sprite.
+     * @param {number} width The width of this sprite.
+     * @param {number} height The height of this sprite.
      */
     public constructor(name: string, materialName: string, width: number = 100, height: number = 100) {
         this._name = name;
@@ -34,22 +37,17 @@ export class Sprite {
         this._material = MaterialManager.getMaterial(this._materialName);
     }
 
-    /**
-     * name accesor
-     */
+    /** The name of this sprite. */
     public get name(): string {
         return this._name;
     }
 
-    /**
-     * origin accessor
-     */
+    /** The origin location of this sprite. */
     public get origin(): Vector3 {
         return this._origin;
     }
 
-    /**
-     * origin setter
+    /** The name of this sprite.
      * @param {Vector3} value
      */
     public set origin(value: Vector3) {
@@ -57,9 +55,17 @@ export class Sprite {
         this.recalculateVertices();
     }
 
-    /**
-     * Destroy Sprite
-     */
+    /** The width of this sprite. */
+    public get width(): number {
+        return this._width;
+    }
+
+    /** The height of this sprite. */
+    public get height(): number {
+        return this._height;
+    }
+
+    /** Performs destruction routines on this sprite. */
     public destroy(): void {
         if (this._buffer) {
             this._buffer.destroy();
@@ -72,8 +78,8 @@ export class Sprite {
     }
 
     /**
-     * Load Method
-     */
+     * Performs loading routines on this sprite.
+     * */
     public load(): void {
         this._buffer = new GLBuffer();
 
@@ -91,27 +97,25 @@ export class Sprite {
     }
 
     /**
-     * update Method
-     * @param {number} time
+     * Performs update routines on this sprite.
+     * @param {number} time The delta time in milliseconds since the last update call.
      */
     public update(time: number): void {}
 
     /**
-     * Draw Method
-     * @param {Matrix4x4} model
-     * @param {Matrix4x4} view
-     * @param {Matrix4x4} projection
+     * Draws this sprite.
+     * @param {Matrix4x4} model The model transformation matrix.
+     * @param {Matrix4x4} view The view transformation matrix.
+     * @param {Matrix4x4} projection The projection transformation matrix.
      */
     public draw(model: Matrix4x4, view: Matrix4x4, projection: Matrix4x4): void {
-        // console.log(this._material);
         this._material.apply(model, view, projection);
+
         this._buffer.bind();
         this._buffer.draw();
     }
 
-    /**
-     * ir calculates vertices
-     */
+    /** Calculates the vertices for this sprite. */
     protected calculateVertices(): void {
         const minX = -(this._width * this._origin.x);
         const maxX = this._width * (1.0 - this._origin.x);
@@ -138,9 +142,7 @@ export class Sprite {
         this._buffer.unbind();
     }
 
-    /**
-     * it recalcuates vertices
-     */
+    /** Recalculates the vertices for this sprite. */
     protected recalculateVertices(): void {
         const minX = -(this._width * this._origin.x);
         const maxX = this._width * (1.0 - this._origin.x);

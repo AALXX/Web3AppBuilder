@@ -7,6 +7,9 @@ import { Material } from './Material';
 /**
  * Holds reference information for a given material.
  */
+/**
+ * Holds reference information for a given material.
+ */
 class MaterialReferenceNode {
     /** The referenced material. */
     public material: Material;
@@ -41,7 +44,7 @@ export class MaterialConfig {
     public tint: Color;
 
     /**
-     * set datat from json
+     * from json
      * @param {any} json
      * @return {MaterialConfig}
      */
@@ -65,39 +68,6 @@ export class MaterialConfig {
 
         if (json.tint !== undefined) {
             config.tint = Color.fromJson(json.tint);
-        } else {
-            config.tint = Color.white();
-        }
-
-        return config;
-    }
-
-    /**
-     * new material config
-     * @param {string} name
-     * @param {string} diffuse
-     * @param {string} specular
-     * @param {Color} tint
-     * @param {string} shader
-     * @return {MaterialConfig}
-     */
-    public static newConfig(name: string, diffuse: string, specular?: string, tint?: Color, shader?: string): MaterialConfig {
-        const config = new MaterialConfig();
-
-        config.name = name;
-
-        config.diffuse = 'diffuse';
-
-        if (shader !== undefined) {
-            config.shader = shader;
-        }
-
-        if (specular !== undefined) {
-            config.specular = specular;
-        }
-
-        if (tint !== undefined) {
-            config.tint = tint;
         } else {
             config.tint = Color.white();
         }
@@ -149,6 +119,23 @@ export class MaterialManager {
     }
 
     /**
+     * change material propreties
+     * @param {string} materialName
+     * @param {Array} tint
+     */
+    public static changeMaterial(materialName: string, tint: { r: number; g: number; b: number; a: number }): void {
+        if (MaterialManager._materials[materialName] === undefined) {
+            // Check if a config is registered.
+            console.error('Material not found!');
+        } else {
+            MaterialManager._materials[materialName].material.tint.r = tint.r;
+            MaterialManager._materials[materialName].material.tint.g = tint.g;
+            MaterialManager._materials[materialName].material.tint.b = tint.b;
+            MaterialManager._materials[materialName].material.tint.a = tint.a;
+        }
+    }
+
+    /**
      * Registers the provided material with this manager.
      * @param {MaterialConfig} materialConfig The material to be registered.
      */
@@ -180,23 +167,6 @@ export class MaterialManager {
     }
 
     /**
-     * change material propreties
-     * @param {string} materialName
-     * @param {Array} tint
-     */
-    public static changeMaterial(materialName: string, tint: { r: number; g: number; b: number; a: number }): void {
-        if (MaterialManager._materials[materialName] === undefined) {
-            // Check if a config is registered.
-            console.error('Material not found!');
-        } else {
-            MaterialManager._materials[materialName].material.tint.r = tint.r;
-            MaterialManager._materials[materialName].material.tint.g = tint.g;
-            MaterialManager._materials[materialName].material.tint.b = tint.b;
-            MaterialManager._materials[materialName].material.tint.a = tint.a;
-        }
-    }
-
-    /**
      * Releases a reference of a material with the provided name and decrements the reference count.
      * If the material's reference count is 0, it is automatically released.
      * @param {string} materialName The name of the material to be released.
@@ -215,11 +185,11 @@ export class MaterialManager {
     }
 
     /**
-     * process material asset
+     * processMaterialAsset
      * @param {JsonAsset} asset
      */
     private static processMaterialAsset(asset: JsonAsset): void {
-        const materials = asset.data.materials;
+        const materials = asset.Data.materials;
         if (materials) {
             for (const material of materials) {
                 const c = MaterialConfig.fromJson(material);

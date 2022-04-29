@@ -5,10 +5,10 @@ import { IAssetLoader } from './interfaces/IAssetloader';
 /** Represents an Json asset */
 export class JsonAsset implements IAsset {
     /** The name of this asset. */
-    public readonly name: string;
+    public readonly Name: string;
 
     /** The data of this asset. */
-    public readonly data: any;
+    public readonly Data: any;
 
     /**
      * Creates a new image asset.
@@ -16,8 +16,8 @@ export class JsonAsset implements IAsset {
      * @param {any} data The data of this asset.
      */
     public constructor(name: string, data: any) {
-        this.name = name;
-        this.data = data;
+        this.Name = name;
+        this.Data = data;
     }
 }
 
@@ -40,7 +40,7 @@ export class JsonAssetLoader implements IAssetLoader {
     }
 
     /**
-     * On jsonLoaded Event
+     * on json loaded
      * @param {string} assetName
      * @param {XMLHttpRequest} request
      */

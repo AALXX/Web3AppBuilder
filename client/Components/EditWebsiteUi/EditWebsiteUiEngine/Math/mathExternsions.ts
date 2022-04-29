@@ -1,4 +1,4 @@
-interface Math {
+export interface Math {
     /**
      * Returns value within the range of min/max.
      * @param value The value to be clamped.

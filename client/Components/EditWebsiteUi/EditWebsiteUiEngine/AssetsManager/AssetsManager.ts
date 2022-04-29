@@ -3,12 +3,14 @@ import { IAsset } from './interfaces/IAsset';
 import { Message } from '../MessageManager/Message';
 import { ImageAssetLoader } from './ImageAssetLoader';
 import { JsonAssetLoader } from './JsonAssetLoader';
-
-export const MESSAGE_ASSET_LOADER_ASSET_LOADED = 'MESSAGE_ASSET_LOADER_ASSET_LOADED::';
+import { TextAssetLoader } from './TextAssetLoader';
 
 /**
- * @param {IAssetLoader} loader
+ * The message code prefix for asset load notifications.
  */
+export const MESSAGE_ASSET_LOADER_ASSET_LOADED = 'MESSAGE_ASSET_LOADER_ASSET_LOADED::';
+
+/** Manages all assets in the engine. */
 export class AssetManager {
     private static _loaders: IAssetLoader[] = [];
     private static _loadedAssets: { [name: string]: IAsset } = {};
@@ -16,29 +18,28 @@ export class AssetManager {
     /** Private to enforce static method calls and prevent instantiation. */
     private constructor() {}
 
-    /**
-     * Initialize asset manager
-     */
+    /** Initializes this manager. */
     public static initialize(): void {
         AssetManager._loaders.push(new ImageAssetLoader());
         AssetManager._loaders.push(new JsonAssetLoader());
+        AssetManager._loaders.push(new TextAssetLoader());
     }
 
     /**
      * Registers the provided loader with this asset manager.
      * @param {IAssetLoader} loader The loader to be registered.
      */
-    public static registerLoadder = (loader: IAssetLoader): void => {
+    public static registerLoader(loader: IAssetLoader): void {
         AssetManager._loaders.push(loader);
-    };
+    }
 
     /**
      * A callback to be made from an asset loader when an asset is loaded.
      * @param {IAsset} asset
      */
     public static onAssetLoaded(asset: IAsset): void {
-        AssetManager._loadedAssets[asset.name] = asset;
-        Message.send(MESSAGE_ASSET_LOADER_ASSET_LOADED + asset.name, this, asset);
+        AssetManager._loadedAssets[asset.Name] = asset;
+        Message.send(MESSAGE_ASSET_LOADER_ASSET_LOADED + asset.Name, this, asset);
     }
 
     /**
@@ -46,7 +47,7 @@ export class AssetManager {
      * @param {string} assetName The name/url of the asset to be loaded.
      */
     public static loadAsset(assetName: string): void {
-        const extension = assetName.toString().split('.').pop().toLowerCase();
+        const extension = assetName.split('.').pop().toLowerCase();
         for (const l of AssetManager._loaders) {
             if (l.supportedExtensions.indexOf(extension) !== -1) {
                 l.loadAsset(assetName);

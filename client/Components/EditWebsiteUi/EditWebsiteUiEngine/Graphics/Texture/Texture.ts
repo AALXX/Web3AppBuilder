@@ -6,10 +6,11 @@ import { Message } from '../../MessageManager/Message';
 
 const LEVEL: number = 0;
 const BORDER: number = 0;
-const TEMP_IMAGE_DATA: Uint8Array = new Uint8Array([255, 255, 255, 255]); // RGBA data
+const TEMP_IMAGE_DATA: Uint8Array = new Uint8Array([255, 255, 255, 255]);
 
 /**
- * Texture handler class
+ * Represents a texture to be used in a material. These typically should not be created manually, but
+ * instead via the texture manager.
  */
 export class Texture implements IMessageHandler {
     private _name: string;
@@ -19,10 +20,10 @@ export class Texture implements IMessageHandler {
     private _height: number;
 
     /**
-     * class constructor
-     * @param {string} name
-     * @param {number} width
-     * @param {number} height
+     * Creates a new Texture.
+     * @param {string} name The name of this texture.
+     * @param {number} width The width of this texture.
+     * @param {number} height The height of this texture.
      */
     public constructor(name: string, width: number = 1, height: number = 1) {
         this._name = name;
@@ -43,37 +44,27 @@ export class Texture implements IMessageHandler {
         }
     }
 
-    /**
-     * get name method
-     */
+    /** The name of this texture. */
     public get name(): string {
         return this._name;
     }
 
-    /**
-     * chack if texture is loladed
-     */
+    /** Indicates if this texture is loaded. */
     public get isLoaded(): boolean {
         return this._isLoaded;
     }
 
-    /**
-     * get texture width
-     */
+    /** The width of this  texture. */
     public get width(): number {
         return this._width;
     }
 
-    /**
-     * get texture height
-     */
+    /** The height of this texture. */
     public get height(): number {
         return this._height;
     }
 
-    /**
-     * destroy texture
-     */
+    /** Destroys this texture. */
     public destroy(): void {
         if (this._handle) {
             gl.deleteTexture(this._handle);
@@ -81,8 +72,8 @@ export class Texture implements IMessageHandler {
     }
 
     /**
-     * activate bind
-     * @param {number} textureUnit
+     * Activates the provided texture unit and binds this texture.
+     * @param {number} textureUnit The texture unit to activate on. Default: 0
      */
     public activateAndBind(textureUnit: number = 0): void {
         gl.activeTexture(gl.TEXTURE0 + textureUnit);
@@ -90,23 +81,19 @@ export class Texture implements IMessageHandler {
         this.bind();
     }
 
-    /**
-     * bind texture
-     */
+    /** Binds this texture. */
     public bind(): void {
         gl.bindTexture(gl.TEXTURE_2D, this._handle);
     }
 
-    /**
-     * Unbind texture
-     */
+    /** Binds this texture. */
     public unbind(): void {
         gl.bindTexture(gl.TEXTURE_2D, undefined);
     }
 
     /**
-     * On message recived event
-     * @param {Message} message
+     * The message handler.
+     * @param {Message} message The message to be handled.
      */
     public onMessage(message: Message): void {
         if (message.code === MESSAGE_ASSET_LOADER_ASSET_LOADED + this._name) {
@@ -115,7 +102,7 @@ export class Texture implements IMessageHandler {
     }
 
     /**
-     * Loat texure from asset
+     *
      * @param {ImageAsset} asset
      */
     private loadTextureFromAsset(asset: ImageAsset): void {
@@ -124,7 +111,7 @@ export class Texture implements IMessageHandler {
 
         this.bind();
 
-        gl.texImage2D(gl.TEXTURE_2D, LEVEL, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, asset.data);
+        gl.texImage2D(gl.TEXTURE_2D, LEVEL, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, asset.Data);
 
         if (this.isPowerof2()) {
             gl.generateMipmap(gl.TEXTURE_2D);
@@ -134,6 +121,7 @@ export class Texture implements IMessageHandler {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         }
 
+        // TODO:  Set text ure filte r ing based on configuration.
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -141,7 +129,7 @@ export class Texture implements IMessageHandler {
     }
 
     /**
-     * check if is power of 2
+     * is powerof2
      * @return {boolean}
      */
     private isPowerof2(): boolean {
@@ -149,8 +137,8 @@ export class Texture implements IMessageHandler {
     }
 
     /**
-     * check if value is power of 2
-     * @param {null} value
+     *isValuePowerOf2
+     * @param {number} value
      * @return {boolean}
      */
     private isValuePowerOf2(value: number): boolean {

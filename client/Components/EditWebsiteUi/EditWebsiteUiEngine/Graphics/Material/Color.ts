@@ -1,5 +1,5 @@
 /**
- * Color Class
+ * Represents a color.
  */
 export class Color {
     private _r: number;
@@ -8,106 +8,103 @@ export class Color {
     private _a: number;
 
     /**
-     * Class constructor
-     * @param {number} R
-     * @param {number} G
-     * @param {number} B
-     * @param {number} A
+     * Creates a new color.
+     * @param {number} r The red value [0-255]
+     * @param {number} g The green value [0-255]
+     * @param {number} b The blue value [0-255]
+     * @param {number} a The alpha value [0-255]
      */
-    public constructor(R: number = 255, G: number = 255, B: number = 255, A: number = 255) {
-        this._r = R;
-        this._g = G;
-        this._b = B;
-        this._a = A;
+    public constructor(r: number = 255, g: number = 255, b: number = 255, a: number = 255) {
+        this._r = r;
+        this._g = g;
+        this._b = b;
+        this._a = a;
     }
 
-    /** Getter for Red */
+    /** The red value [0-255] */
     public get r(): number {
         return this._r;
     }
 
-    /** Getter for Red Float */
+    /** The red float value [0-1] */
     public get rFloat(): number {
         return this._r / 255.0;
     }
 
-    /** Setter for Red
+    /** The red value [0-255] '
      * @param {number} value
      */
     public set r(value: number) {
         this._r = value;
     }
 
-    /** Getter for Green */
+    /** The green value [0-255] */
     public get g(): number {
         return this._g;
     }
 
-    /** Getter for Green Float */
+    /** The green float value [0-1] */
     public get gFloat(): number {
         return this._g / 255.0;
     }
 
-    /** Setter for Green
+    /** The green value [0-255]
      * @param {number} value
      */
     public set g(value: number) {
         this._g = value;
     }
 
-    /** Getter for Blue */
+    /** The blue value [0-255] */
     public get b(): number {
         return this._b;
     }
 
-    /** Getter for Blue Float */
+    /** The blue float value [0-1] */
     public get bFloat(): number {
         return this._b / 255.0;
     }
 
-    /** Setter for Blue
+    /** The blue value [0-255]
      * @param {number} value
      */
     public set b(value: number) {
         this._b = value;
     }
 
-    /** Getter for Alpha */
+    /** The alpha value [0-255] */
     public get a(): number {
-        return this._a;
+        return this._r;
     }
 
-    /** Getter for Blue Alpha */
+    /** The alpha float value [0-1] */
     public get aFloat(): number {
         return this._a / 255.0;
     }
 
-    /** Setter for Alpha
+    /** The alpha value [0-255]
      * @param {number} value
      */
     public set a(value: number) {
         this._a = value;
     }
 
-    /**
-     * RGBA to array
-     * @return {number[]}
+    /** Returns this color as a number array
+     * @return {number}
      */
     public toArray(): number[] {
         return [this._r, this._g, this._b, this._a];
     }
 
-    /**
-     * RGBA to Float Array
-     * @return {number[]}
+    /** Returns this color as a float array
+     * @return {number}
      */
     public toFloatArray(): number[] {
         return [this._r / 255.0, this._g / 255.0, this._b / 255.0, this._a / 255.0];
     }
 
-    /**
-     * RGBA to Float Array
-     * @return {number[]}
+    /** Returns this color as a float32 array
+     * @return {Float32Array}
      */
     public toFloat32Array(): Float32Array {
         return new Float32Array(this.toFloatArray());
@@ -135,37 +132,38 @@ export class Color {
         return c;
     }
 
-    /** White Color ShortCut
+    /** Gets the color white.
      * @return {Color}
      */
     public static white(): Color {
         return new Color(255, 255, 255, 255);
     }
 
-    /** White Color ShortCut
+    /** Gets the color black.
      * @return {Color}
      */
     public static black(): Color {
         return new Color(0, 0, 0, 255);
     }
 
-    /** Red Color ShortCut
+    /** Gets the color red.
      * @return {Color}
      */
     public static red(): Color {
         return new Color(255, 0, 0, 255);
     }
 
-    /** Green Color ShortCut
+    /** Gets the color green.
      * @return {Color}
      */
     public static green(): Color {
         return new Color(0, 255, 0, 255);
     }
 
-    /** Blue Color ShortCut
+    /** Gets the color blue.
      * @return {Color}
-     */
+
+    */
     public static blue(): Color {
         return new Color(0, 0, 255, 255);
     }

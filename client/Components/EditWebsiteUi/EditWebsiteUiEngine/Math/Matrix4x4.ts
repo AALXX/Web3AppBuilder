@@ -52,6 +52,24 @@ export class Matrix4x4 {
     }
 
     /**
+     * Creates and returns a new perspective projection matrix.
+     * @param {number} fov The field of view in radians.
+     * @param {number} aspect The aspect ratio.
+     * @param {number} nearClip The near clipping plane distance.
+     * @param {number} farClip The far clipping plane distance.
+     * @return {Matrix4x4}
+     */
+    public static perspective(fov: number, aspect: number, nearClip: number, farClip: number): Matrix4x4 {
+        const f = 1.0 / Math.tan(fov / 2.0);
+        const rangeInv = 1.0 / (nearClip - farClip);
+
+        // data
+        const m = new Matrix4x4();
+        m._data = [f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (nearClip + farClip) * rangeInv, -1.0, 0, 0, nearClip * farClip * rangeInv * 2.0, 0.0];
+        return m;
+    }
+
+    /**
      * Creates a transformation matrix using the provided position.
      * @param {Vector3} position The position to be used in transformation.
      * @return {Matrix4x4}
@@ -89,7 +107,6 @@ export class Matrix4x4 {
      * Creates a rotation matrix on the Y axis from the provided angle in radians.
      * @param {number} angleInRadians The angle in radians.
      * @return {Matrix4x4}
-     *
      */
     public static rotationY(angleInRadians: number): Matrix4x4 {
         const m = new Matrix4x4();
@@ -218,7 +235,7 @@ export class Matrix4x4 {
     }
 
     /** Returns the data of this matrix as a Float32Array.
-     * @return {Float32Array}
+     *@return {Float32Array}
      */
     public toFloat32Array(): Float32Array {
         return new Float32Array(this._data);
